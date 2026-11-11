@@ -4,7 +4,6 @@ import os
 import random
 import secrets
 import time
-from calendar import monthrange
 from datetime import date, datetime, timedelta, timezone
 from functools import wraps
 from zoneinfo import ZoneInfo
@@ -302,21 +301,6 @@ def dados_missa_form():
     datetime.strptime(hora, "%H:%M")
     return nome, data_obj, hora, quantidade, recado, funcoes
 
-def datas_repetidas(inicial, tipo, total):
-    if tipo not in ("semanal", "mensal"):
-        return [inicial]
-    resultado = []
-    for i in range(total):
-        if tipo == "semanal":
-            resultado.append(inicial + timedelta(weeks=i))
-        else:
-            mes_base = (inicial.month - 1) + i
-            ano = inicial.year + mes_base // 12
-            mes = mes_base % 12 + 1
-            if inicial.day <= monthrange(ano, mes)[1]:
-                resultado.append(date(ano, mes, inicial.day))
-    return resultado
-
 @app.route("/missas/nova", methods=["GET", "POST"])
 @acesso("padre", "coordenador")
 def nova_missa():
@@ -328,14 +312,8 @@ def nova_missa():
             validos = {x["id"] for x in servidores}
             if not disponiveis or not set(disponiveis).issubset(validos) or quantidade > len(disponiveis):
                 raise ValueError("Selecione servidores ativos suficientes para a quantidade informada.")
-            tipo = request.form.get("frequencia", "")
-            if tipo not in ("", "semanal", "mensal"):
-                raise ValueError("Frequência inválida.")
-            total = int(request.form.get("repeticoes", "1")) if tipo else 1
-            if not 1 <= total <= 12:
-                raise ValueError("Escolha no máximo 12 repetições.")
             db = get_db()
-            for dia in datas_repetidas(inicial, tipo, total):
+            for dia in [inicial]:
                 if database.POSTGRES:
                     mid = db.execute(
                         """INSERT INTO missas(nome,data,hora,quantidade,funcoes,recado,criado_por)
