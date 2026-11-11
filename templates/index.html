@@ -12,21 +12,14 @@
 {% for a in avisos %}<article class="aviso-card aviso-filtravel" data-grupo="{{ a.grupo }}"><div class="aviso-texto"><h3>{{ a.titulo }}</h3><p>{{ a.mensagem }}</p></div></article>{% endfor %}
 <p id="sem-avisos" class="texto-suave" hidden>Nenhum aviso nesta equipe.</p></section>
 <section class="secao" id="escalas">
-  <div class="form-card busca-escala">
-    <label for="buscar-servidor">Encontre seu nome na escala</label>
-    <input id="buscar-servidor" type="search" placeholder="Buscar servidor pelo nome…" autocomplete="off" aria-describedby="resultado-busca">
-    <p id="resultado-busca" class="texto-suave" role="status" style="margin:8px 0 0">Todas as escalas publicadas estão abaixo.</p>
-  </div>
   <div class="titulo-secao"><div><span class="eyebrow">CELEBRAÇÕES</span><h2>Próximas escalas</h2></div></div>
   {% if missas %}<div class="grade-escalas" id="lista-escalas">
     {% for m in missas %}<div class="escala-filtravel" data-grupo="{{ m.grupo }}">{% include "_missa.html" %}</div>{% endfor %}
-  </div><div id="sem-escalas-filtradas" class="estado-vazio estado-filtro" hidden><h3>Nenhuma escala nesta seleção</h3><p>Experimente outra equipe ou outro nome.</p></div>{% else %}<div class="estado-vazio"><span>✝</span><h3>Aguardando as próximas celebrações</h3><p>As escalas publicadas aparecerão aqui.</p></div>{% endif %}
+  </div><div id="sem-escalas-filtradas" class="estado-vazio estado-filtro" hidden><h3>Nenhuma escala nesta seleção</h3><p>Selecione outra equipe ou aguarde a publicação das próximas celebrações.</p></div>{% else %}<div class="estado-vazio"><span>✝</span><h3>Aguardando as próximas celebrações</h3><p>As escalas publicadas aparecerão aqui.</p></div>{% endif %}
 </section>
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const campo = document.getElementById('buscar-servidor');
-  const resultado = document.getElementById('resultado-busca');
   const cards = Array.from(document.querySelectorAll('.escala-filtravel'));
   let grupo = 'altar';
   const abas = document.querySelectorAll('.aba-escala');
@@ -35,13 +28,10 @@ document.addEventListener('DOMContentLoaded', function () {
     abas.forEach(b => { b.classList.toggle('ativa', b === aba); b.setAttribute('aria-selected', String(b === aba)); });
     filtrar();
   }));
-  const normalizar = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
   function filtrar() {
-    const termo = normalizar(campo.value);
     let encontradas = 0;
     cards.forEach(card => {
-      const nomes = Array.from(card.querySelectorAll('.equipe-lista li strong'));
-      const combina = card.dataset.grupo === grupo && (!termo || nomes.some(n => normalizar(n.textContent).includes(termo)));
+      const combina = card.dataset.grupo === grupo;
       card.hidden = !combina;
       if (combina) encontradas++;
     });
@@ -53,9 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('sem-avisos').hidden = avisos !== 0;
     const vazio = document.getElementById('sem-escalas-filtradas');
     if (vazio) vazio.hidden = encontradas > 0;
-    resultado.textContent = termo ? encontradas + ' escala(s) encontrada(s).' : 'Exibindo escalas de ' + (grupo === 'altar' ? 'altar' : 'leitores') + '.';
   }
-  campo.addEventListener('input', filtrar);
   filtrar();
 });
 </script>
