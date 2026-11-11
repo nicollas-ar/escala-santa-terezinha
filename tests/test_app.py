@@ -42,12 +42,13 @@ class AplicacaoTests(unittest.TestCase):
         self._post("/sair", {})
         self.client.get("/entrar")
         self._post("/entrar", {"usuario":"coord_demo","senha":"senha-coordenador-123"})
-        resp = self._post("/usuarios", {"nome":"Servidor Exemplo","usuario":"serv_demo","senha":"senha-servidor-123"})
+        resp = self._post("/usuarios", {"nome":"Servidor Exemplo"})
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b"Servidor Exemplo", resp.data)
+        self.assertNotIn(b"@servidor_", resp.data)
         with app.app_context():
             c = database.conectar()
-            servidor_id = c.execute("SELECT id FROM usuarios WHERE usuario='serv_demo'").fetchone()["id"]
+            servidor_id = c.execute("SELECT id FROM usuarios WHERE perfil='servidor' AND nome='Servidor Exemplo'").fetchone()["id"]
             c.close()
         resp = self._post("/missas/nova", {
             "nome":"Missa de teste", "data":"2099-05-20","hora":"18:00",
