@@ -9,7 +9,20 @@
     <label>Data<input name="data" type="date" min="{{ hoje }}" required value="{{ request.form.get('data',hoje) }}"></label>
     <label>Horário<input name="hora" type="time" required value="{{ request.form.get('hora','18:00') }}"></label>
     <label>Quantidade de servidores<input name="quantidade" type="number" min="1" max="30" required value="{{ request.form.get('quantidade','4') }}"></label>
-    <label class="span2">Funções por vaga (uma em cada linha; opcional)<textarea name="funcoes" rows="4" placeholder="Missal&#10;Leitor&#10;Cerimoniário">{{ request.form.get('funcoes','') }}</textarea></label>
+    <div class="span2">
+      <label for="lista-funcoes">Funções que serão sorteadas</label>
+      <p class="texto-suave" style="margin:5px 0 10px">Adicione uma função para cada servidor da escala. Você pode repetir funções. O sorteio distribuirá as funções aleatoriamente entre os selecionados.</p>
+      <div id="lista-funcoes" style="display:grid;gap:10px" aria-live="polite">
+        {% for funcao in request.form.getlist('funcoes') %}
+        <div class="linha-funcao" style="display:flex;gap:8px;align-items:center">
+          <input name="funcoes" type="text" maxlength="45" required placeholder="Ex.: Missal" value="{{ funcao }}" aria-label="Nome da função">
+          <button type="button" class="btn btn-perigo btn-pequeno remover-funcao">Remover</button>
+        </div>
+        {% endfor %}
+      </div>
+      <button id="adicionar-funcao" type="button" class="btn btn-neutro" style="margin-top:12px">+ Adicionar função</button>
+      <p id="contador-funcoes" class="texto-suave" role="status" style="margin-top:8px"></p>
+    </div>
     <label class="span2">Orientações para a equipe<textarea name="recado" rows="3" maxlength="300" placeholder="Ex.: Chegar 30 minutos antes.">{{ request.form.get('recado','') }}</textarea></label>
   </div>
   <fieldset class="grupo-servidores"><legend>Servidores disponíveis</legend>
