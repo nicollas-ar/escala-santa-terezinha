@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Painel | Escala Santa Terezinha{% endblock %}
+{% block conteudo %}
+<section class="pagina-intro">
+  <span class="eyebrow">Área de administração</span>
+  <h1>Bem-vindo, {{ usuario_logado.nome }}.</h1>
+  <p>Organize as celebrações, os servidores e os comunicados da paróquia.</p>
+  <div class="grupo-botoes">
+    <a href="{{ url_for('nova_missa') }}" class="btn btn-principal">+ Nova celebração</a>
+    <a href="{{ url_for('novo_aviso') }}" class="btn btn-neutro">+ Novo aviso</a>
+    <a href="{{ url_for('usuarios') }}" class="btn btn-contorno">{{ 'Gerenciar coordenadores' if usuario_logado.perfil == 'padre' else 'Gerenciar servidores' }}</a>
+  </div>
+</section>
+{% include "_avisos.html" %}
+<section class="secao">
+  <div class="titulo-secao"><div><span class="eyebrow">Planejamento</span><h2>Próximas celebrações</h2></div></div>
+  {% if proximas %}<div class="grade-escalas">{% for m in proximas %}{% set admin_view=true %}{% include "_missa.html" %}{% endfor %}</div>
+  {% else %}<div class="estado-vazio"><h3>Nenhuma celebração cadastrada</h3><p>Comece criando uma celebração e selecionando os servidores disponíveis.</p></div>{% endif %}
+</section>
+{% if anteriores %}
+<section class="secao">
+  <div class="titulo-secao"><div><span class="eyebrow">Histórico</span><h2>Celebrações anteriores</h2></div></div>
+  <div class="grade-escalas">{% for m in anteriores %}{% set admin_view=true %}{% include "_missa.html" %}{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}
