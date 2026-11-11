@@ -6,7 +6,7 @@
       <span class="tag {{ 'tag-publicado' if m.publicada else 'tag-rascunho' }}">{{ 'Publicada' if m.publicada else 'Rascunho' }}</span>
     {% endif %}
   </div>
-  <div class="data-celebracao"><span class="icon-data">◷</span><span>{{ m.data|data_bonita }} · {{ m.hora|hora_bonita }}</span></div>
+
   {% if equipe %}
     <div class="divisoria"></div>
     <div class="equipe-titulo">Equipe escalada <span>{{ equipe|length }} {{ 'pessoa' if equipe|length == 1 else 'pessoas' }}</span></div>
@@ -19,6 +19,7 @@
     <p class="vazio-inline">A equipe ainda não foi definida.</p>
   {% endif %}
   {% if m.recado %}<div class="recado"><strong>Orientação:</strong> {{ m.recado }}</div>{% endif %}
+  <div class="data-celebracao data-rodape">{{ m.data|data_bonita }} · {{ m.hora|hora_bonita }}</div>
   <div class="acoes-card">
     {% if equipe and m.publicada %}
       {% set nomes = namespace(items=[]) %}
