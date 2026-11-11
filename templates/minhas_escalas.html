@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Minhas escalas | Escala Santa Terezinha{% endblock %}
+{% block conteudo %}
+<section class="pagina-intro"><span class="eyebrow">Área do servidor</span><h1>Minhas escalas</h1><p>Olá, {{ usuario_logado.nome }}. Confira em quais celebrações você está escalado.</p></section>
+{% include "_avisos.html" %}
+<section class="secao"><div class="titulo-secao"><h2>Próximas participações</h2></div>
+{% if missas %}<div class="grade-escalas">{% for m in missas %}{% include "_missa.html" %}{% endfor %}</div>
+{% else %}<div class="estado-vazio"><h3>Você ainda não está escalado</h3><p>Quando uma nova escala for publicada, ela aparecerá aqui.</p></div>{% endif %}
+</section>
+{% endblock %}
