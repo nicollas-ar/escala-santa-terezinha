@@ -158,7 +158,7 @@ FALHAS = {}
 @app.route("/entrar", methods=["GET", "POST"])
 def entrar():
     if g.usuario:
-        return redirect(url_for("minhas_escalas" if g.usuario["perfil"] == "servidor" else "painel"))
+        return redirect(url_for("painel"))
     if request.method == "POST":
         ip = request.remote_addr or "?"
         falhas, bloqueio = FALHAS.get(ip, (0, 0))
@@ -168,12 +168,12 @@ def entrar():
         login = request.form.get("usuario", "").strip()
         senha = request.form.get("senha", "")
         u = get_db().execute("SELECT * FROM usuarios WHERE usuario=?", (login,)).fetchone()
-        if u and u["ativo"] and check_password_hash(u["senha_hash"], senha):
+        if u and u["ativo"] and u["perfil"] in ("padre", "coordenador") and check_password_hash(u["senha_hash"], senha):
             session.clear()
             session["usuario_id"] = u["id"]
             session.permanent = True
             FALHAS.pop(ip, None)
-            return redirect(url_for("minhas_escalas" if u["perfil"] == "servidor" else "painel"))
+            return redirect(url_for("painel"))
         falhas += 1
         FALHAS[ip] = (falhas, time.time() + 300 if falhas >= 5 else 0)
         flash("Usuário ou senha inválidos.", "erro")
@@ -183,20 +183,6 @@ def entrar():
 def sair():
     session.clear()
     return redirect(url_for("index"))
-
-@app.route("/minhas-escalas")
-@acesso("servidor")
-def minhas_escalas():
-    instante = agora()
-    m = get_db().execute(
-        """SELECT m.* FROM missas m
-           JOIN escala e ON e.missa_id=m.id
-           WHERE e.servidor_id=? AND m.publicada=1
-           AND (m.data>? OR (m.data=? AND m.hora>=?))
-           ORDER BY m.data,m.hora LIMIT 60""",
-        (g.usuario["id"], instante.date().isoformat(), instante.date().isoformat(), instante.strftime("%H:%M"))
-    ).fetchall()
-    return render_template("minhas_escalas.html", missas=m, escalas=escalas_para(m), avisos=avisos())
 
 @app.route("/painel")
 @acesso("padre", "coordenador")
@@ -222,22 +208,35 @@ def usuarios():
     perfil_novo = "coordenador" if g.usuario["perfil"] == "padre" else "servidor"
     if request.method == "POST":
         nome = request.form.get("nome", "").strip()
-        login = request.form.get("usuario", "").strip().lower()
-        senha = request.form.get("senha", "")
-        if not (2 <= len(nome) <= 100 and 3 <= len(login) <= 40 and login.replace("_", "").replace("-", "").isalnum()):
-            flash("Confira o nome e o usuário (3 a 40 letras, números, _ ou -).", "erro")
-        elif len(senha) < 12:
-            flash("A senha deve ter pelo menos 12 caracteres.", "erro")
-        elif db.execute("SELECT id FROM usuarios WHERE usuario=?", (login,)).fetchone():
-            flash("Esse nome de usuário já existe.", "erro")
-        else:
+        if not (2 <= len(nome) <= 100):
+            flash("Informe um nome entre 2 e 100 caracteres.", "erro")
+        elif perfil_novo == "servidor":
+            # Identificadores internos aleatórios: não são contas e nunca permitem login.
+            identificador = "servidor_" + secrets.token_hex(16)
             db.execute(
                 "INSERT INTO usuarios (nome,usuario,senha_hash,perfil,criado_por) VALUES (?,?,?,?,?)",
-                (nome, login, generate_password_hash(senha), perfil_novo, g.usuario["id"])
+                (nome, identificador, generate_password_hash(secrets.token_urlsafe(48)), "servidor", g.usuario["id"])
             )
             db.commit()
-            flash("Cadastro realizado com sucesso.", "ok")
+            flash("Servidor cadastrado apenas com o nome.", "ok")
             return redirect(url_for("usuarios"))
+        else:
+            login = request.form.get("usuario", "").strip().lower()
+            senha = request.form.get("senha", "")
+            if not (3 <= len(login) <= 40 and login.replace("_", "").replace("-", "").isalnum()):
+                flash("Usuário inválido (3 a 40 caracteres).", "erro")
+            elif len(senha) < 12:
+                flash("A senha deve ter pelo menos 12 caracteres.", "erro")
+            elif db.execute("SELECT id FROM usuarios WHERE usuario=?", (login,)).fetchone():
+                flash("Esse nome de usuário já existe.", "erro")
+            else:
+                db.execute(
+                    "INSERT INTO usuarios (nome,usuario,senha_hash,perfil,criado_por) VALUES (?,?,?,?,?)",
+                    (nome, login, generate_password_hash(senha), perfil_novo, g.usuario["id"])
+                )
+                db.commit()
+                flash("Coordenador cadastrado.", "ok")
+                return redirect(url_for("usuarios"))
     pessoas = db.execute(
         "SELECT id,nome,usuario,ativo FROM usuarios WHERE perfil=? ORDER BY nome",
         (perfil_novo,)
