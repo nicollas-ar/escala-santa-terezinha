@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 {% block conteudo %}
-<section class="hero">
-  <div class="hero-texto"><span class="eyebrow">Paróquia Santa Terezinha do Menino Jesus</span>
-    <h1>Servir com amor.<br><em>Organizar com cuidado.</em></h1>
-    <p>Consulte as próximas celebrações, a equipe de servidores e os comunicados da nossa paróquia.</p>
-    <a href="#escalas" class="btn btn-principal">Consultar escala geral</a>
-  </div>
-  <div class="hero-simbolo"><img src="{{ url_for('static',filename='img/logo.svg') }}" alt="Emblema da paróquia"></div>
+<section class="cabecalho-paroquia">
+<img src="{{ url_for('static',filename='img/logo.svg') }}" alt="Logo da paróquia">
+<h1>Escalas da Paróquia Santa Terezinha</h1>
 </section>
-{% include "_avisos.html" %}
+<div class="abas-escala" role="tablist" aria-label="Equipe">
+<button class="aba-escala ativa" type="button" role="tab" data-grupo="altar" aria-selected="true">Altar</button>
+<button class="aba-escala" type="button" role="tab" data-grupo="leitor" aria-selected="false">Leitores</button>
+</div>
+<section id="avisos" class="secao"><h2>Avisos da equipe</h2>
+{% for a in avisos %}<article class="aviso-card aviso-filtravel" data-grupo="{{ a.grupo }}"><div class="aviso-texto"><h3>{{ a.titulo }}</h3><p>{{ a.mensagem }}</p></div></article>{% endfor %}
+<p id="sem-avisos" class="texto-suave" hidden>Nenhum aviso nesta equipe.</p></section>
 <section class="secao" id="escalas">
   <div class="form-card" style="margin-bottom:24px">
     <label for="buscar-servidor" style="display:block;font-weight:700;color:#162b4f;margin-bottom:8px">Encontre seu nome na escala</label>
@@ -17,7 +19,7 @@
   </div>
   <div class="titulo-secao"><div><span class="eyebrow">Organização litúrgica</span><h2>Próximas escalas</h2></div><span class="subtitulo">{{ missas|length }} celebrações</span></div>
   {% if missas %}<div class="grade-escalas">
-    {% for m in missas %}{% include "_missa.html" %}{% endfor %}
+    {% for m in missas %}<div class="escala-filtravel" data-grupo="{{ m.grupo }}">{% include "_missa.html" %}</div>{% endfor %}
   </div>{% else %}<div class="estado-vazio"><span>✝</span><h3>Aguardando as próximas celebrações</h3><p>As escalas publicadas aparecerão aqui.</p></div>{% endif %}
 </section>
 {% block scripts %}
@@ -25,21 +27,34 @@
 document.addEventListener('DOMContentLoaded', function () {
   const campo = document.getElementById('buscar-servidor');
   const resultado = document.getElementById('resultado-busca');
-  const cards = Array.from(document.querySelectorAll('#escalas .celebracao'));
+  const cards = Array.from(document.querySelectorAll('.escala-filtravel'));
+  let grupo = 'altar';
+  const abas = document.querySelectorAll('.aba-escala');
+  abas.forEach(aba => aba.addEventListener('click', () => {
+    grupo = aba.dataset.grupo;
+    abas.forEach(b => { b.classList.toggle('ativa', b === aba); b.setAttribute('aria-selected', String(b === aba)); });
+    filtrar();
+  }));
   const normalizar = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-  campo.addEventListener('input', function () {
+  function filtrar() {
     const termo = normalizar(campo.value);
     let encontradas = 0;
     cards.forEach(card => {
       const nomes = Array.from(card.querySelectorAll('.equipe-lista li strong'));
-      const combina = !termo || nomes.some(nome => normalizar(nome.textContent).includes(termo));
+      const combina = card.dataset.grupo === grupo && (!termo || nomes.some(n => normalizar(n.textContent).includes(termo)));
       card.hidden = !combina;
       if (combina) encontradas++;
     });
-    resultado.textContent = !termo ? 'Todas as escalas publicadas estão abaixo.' :
-      encontradas ? encontradas + ' celebração(ões) encontrada(s) com esse nome.' :
-      'Nenhuma escala publicada encontrada com esse nome.';
-  });
+    let avisos = 0;
+    document.querySelectorAll('.aviso-filtravel').forEach(card => {
+      card.hidden = card.dataset.grupo !== grupo;
+      if (!card.hidden) avisos++;
+    });
+    document.getElementById('sem-avisos').hidden = avisos !== 0;
+    resultado.textContent = termo ? encontradas + ' escala(s) encontrada(s).' : 'Exibindo escalas de ' + (grupo === 'altar' ? 'altar' : 'leitores') + '.';
+  }
+  campo.addEventListener('input', filtrar);
+  filtrar();
 });
 </script>
 {% endblock %}
