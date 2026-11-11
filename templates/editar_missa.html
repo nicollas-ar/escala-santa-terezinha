@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block titulo %}Editar escala | Escala Santa Terezinha{% endblock %}
+{% block conteudo %}
+<section class="pagina-intro"><span class="eyebrow">Edição de escala</span><h1>{{ missa.nome }}</h1>
+  <p>{{ missa.data|data_bonita }}, às {{ missa.hora|hora_bonita }} · {{ 'Publicada' if missa.publicada else 'Rascunho' }}</p>
+</section>
+<form method="post" class="form-card formulario">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <p class="texto-suave">Troque os servidores e as funções abaixo. Uma mesma pessoa não pode aparecer duas vezes na mesma escala. Para remover uma vaga, selecione “Sem servidor”.</p>
+  <div class="linhas-escala">
+    {% for e in escala %}
+      <div class="linha-edicao">
+        <span class="numero">{{ "%02d"|format(loop.index) }}</span>
+        <label>Servidor<select name="servidor_id">
+          <option value="">Sem servidor</option>
+          {% for s in servidores %}
+            {% if s.ativo or s.id == e.servidor_id %}
+              <option value="{{ s.id }}" {{ 'selected' if s.id==e.servidor_id else '' }}>{{ s.nome }}{{ ' (inativo)' if not s.ativo else '' }}</option>
+            {% endif %}
+          {% endfor %}
+        </select></label>
+        <label>Função<input type="text" name="funcao" maxlength="45" value="{{ e.funcao }}" required></label>
+      </div>
+    {% endfor %}
+    {% if not escala %}<p class="texto-suave">Ainda não existe uma equipe. Use “Sortear novamente” após conferir as pessoas disponíveis.</p>{% endif %}
+    {% for numero in range(1, 4) %}
+      <div class="linha-edicao"><span class="numero">+</span>
+        <label>Adicionar servidor<select name="servidor_id"><option value="">Sem servidor</option>
+          {% for s in servidores %}{% if s.ativo %}<option value="{{ s.id }}">{{ s.nome }}</option>{% endif %}{% endfor %}
+        </select></label>
+        <label>Função<input type="text" name="funcao" maxlength="45" value="Servidor"></label>
+      </div>
+    {% endfor %}
+  </div>
+  <label>Orientação para a equipe<textarea name="recado" rows="3" maxlength="300">{{ missa.recado }}</textarea></label>
+  <div class="grupo-botoes">
+    <button type="submit" name="acao" value="salvar" class="btn btn-principal">Salvar alterações</button>
+    {% if not missa.publicada %}<button type="submit" name="acao" value="publicar" class="btn btn-neutro">Salvar e publicar</button>{% endif %}
+    <button type="submit" name="acao" value="sortear" class="btn btn-contorno" onclick="return confirm('Um novo sorteio substituirá a equipe atual. Continuar?')">Sortear novamente</button>
+    <a href="{{ url_for('painel') }}" class="btn btn-contorno">Voltar</a>
+  </div>
+</form>
+{% endblock %}
