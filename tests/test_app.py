@@ -52,7 +52,7 @@ class AplicacaoTests(unittest.TestCase):
             c.close()
         resp = self._post("/missas/nova", {
             "nome":"Missa de teste", "data":"2099-05-20","hora":"18:00",
-            "quantidade":"1","disponiveis":str(servidor_id),"recado":"Chegar cedo"
+            "quantidade":"1","disponiveis":str(servidor_id),"funcoes":"Missal","recado":"Chegar cedo"
         })
         self.assertEqual(resp.status_code, 200)
         with app.app_context():
@@ -60,6 +60,15 @@ class AplicacaoTests(unittest.TestCase):
             self.assertEqual(c.execute("SELECT COUNT(*) AS n FROM missas").fetchone()["n"], 1)
             self.assertEqual(c.execute("SELECT COUNT(*) AS n FROM escala").fetchone()["n"], 1)
             c.close()
+        self._post("/sair", {})
+        self.client.get("/entrar")
+        self._post("/entrar", {"usuario":"padre_teste","senha":"senha-forte-de-teste-123"})
+        self._post("/usuarios", {"nome":"Coordenador Leitores","usuario":"coord_leitor","senha":"senha-leitores-123","grupo":"leitor"})
+        self._post("/sair", {})
+        self.client.get("/entrar")
+        self._post("/entrar", {"usuario":"coord_leitor","senha":"senha-leitores-123"})
+        self.assertEqual(self.client.get("/missas/1/editar").status_code, 404)
+        self.assertNotIn(b"Servidor Exemplo", self.client.get("/usuarios").data)
 
 if __name__ == "__main__":
     unittest.main()
