@@ -123,3 +123,40 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  #escalas .celebracao{padding:16px 13px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* Refinamento final da página pública: visual compacto e nomes longos seguros. */
+html,body{max-width:100%;overflow-x:clip}
+.pagina-publica{padding-bottom:44px}
+.cabecalho-paroquia{padding-top:20px;padding-bottom:22px;background:linear-gradient(145deg,#fffefb,#f6f3e9)}
+.cabecalho-paroquia img{width:74px;height:74px;object-fit:contain}
+.cabecalho-sobre{margin:8px 0 5px;letter-spacing:.11em}
+.cabecalho-paroquia h1{font-size:clamp(26px,4vw,35px)}
+.cabecalho-paroquia p{font-size:13px}
+.abas-escala{margin:18px auto 5px}
+#avisos,#escalas{margin-top:22px}
+#avisos .titulo-secao,#escalas .titulo-secao{margin-bottom:12px}
+#avisos .aviso-card{margin-bottom:9px}
+#escalas .grade-escalas{gap:13px}
+#escalas .celebracao{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal;padding:19px 21px}
+#escalas .celebracao-cabecalho,#escalas .celebracao-cabecalho>div{min-width:0;max-width:100%;width:100%}
+#escalas .celebracao h3{overflow-wrap:anywhere;word-break:break-word;hyphens:auto;max-width:100%;font-size:clamp(20px,3.5vw,26px)}
+#escalas .equipe-lista li{min-width:0}
+#escalas .equipe-lista strong,#escalas .funcao{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+#escalas .recado,#avisos .aviso-card{overflow-wrap:anywhere}
+#escalas .data-rodape{margin-top:12px}
+@media(max-width:600px){
+ .container.pagina-publica{padding-bottom:35px}
+ .cabecalho-paroquia{padding:18px 15px 20px}
+ .cabecalho-paroquia img{width:67px;height:67px}
+ .cabecalho-sobre{font-size:9px;margin:6px 0 4px}
+ .cabecalho-paroquia h1{font-size:27px}
+ .cabecalho-paroquia p{font-size:12px}
+ .abas-escala{margin:15px auto 4px}
+ .aba-escala{min-height:46px}
+ #avisos,#escalas{margin-top:19px}
+ #avisos h2,#escalas h2{font-size:20px}
+ #escalas .celebracao{padding:17px 16px;border-radius:16px}
+ #escalas .celebracao h3{font-size:22px}
+ #escalas .equipe-lista li{grid-template-columns:34px minmax(0,1fr);gap:0 10px}
+ #escalas .numero{width:34px;height:34px}
+}
