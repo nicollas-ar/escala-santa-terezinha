@@ -20,14 +20,10 @@
     <nav id="navegacao" class="navegacao" aria-label="Navegação principal">
       <a href="{{ url_for('index') }}">Escalas</a>
       {% if usuario_logado %}
-        {% if usuario_logado.perfil == 'servidor' %}
-          <a href="{{ url_for('minhas_escalas') }}">Minhas escalas</a>
-        {% else %}
           <a href="{{ url_for('painel') }}">Painel</a>
           <a href="{{ url_for('usuarios') }}">{{ 'Coordenadores' if usuario_logado.perfil == 'padre' else 'Servidores' }}</a>
           <a href="{{ url_for('nova_missa') }}">Nova celebração</a>
           <a href="{{ url_for('novo_aviso') }}">Novo aviso</a>
-        {% endif %}
         <form action="{{ url_for('sair') }}" method="post" class="inline">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="link-logout">Sair</button>
