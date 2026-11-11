@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
  senha_hash TEXT NOT NULL,
  perfil TEXT NOT NULL CHECK (perfil IN ('padre','coordenador','servidor')),
  ativo INTEGER NOT NULL DEFAULT 1,
- criado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL
+ criado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+ grupo TEXT NOT NULL DEFAULT 'altar'
 );
 CREATE TABLE IF NOT EXISTS missas (
  id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,13 +38,15 @@ CREATE TABLE IF NOT EXISTS missas (
  funcoes TEXT NOT NULL DEFAULT '[]',
  publicada INTEGER NOT NULL DEFAULT 0,
  recado TEXT NOT NULL DEFAULT '',
- criado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL
+ criado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+ grupo TEXT NOT NULL DEFAULT 'altar'
 );
 CREATE TABLE IF NOT EXISTS avisos (
  id INTEGER PRIMARY KEY AUTOINCREMENT,
  titulo TEXT NOT NULL,
  mensagem TEXT NOT NULL,
- criado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL
+ criado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+ grupo TEXT NOT NULL DEFAULT 'altar'
 );
 CREATE TABLE IF NOT EXISTS missa_disponiveis (
  missa_id INTEGER NOT NULL REFERENCES missas(id) ON DELETE CASCADE,
@@ -106,6 +109,13 @@ def init_db():
         else:
             c.executescript(SCHEMA)
 
+        for tabela in ("usuarios", "missas", "avisos"):
+            if POSTGRES:
+                c.execute(f"ALTER TABLE {tabela} ADD COLUMN IF NOT EXISTS grupo TEXT NOT NULL DEFAULT 'altar'")
+            else:
+                cols = [r["name"] for r in c.execute(f"PRAGMA table_info({tabela})").fetchall()]
+                if "grupo" not in cols:
+                    c.execute(f"ALTER TABLE {tabela} ADD COLUMN grupo TEXT NOT NULL DEFAULT 'altar'")
         padre = c.execute("SELECT id FROM usuarios WHERE perfil='padre' LIMIT 1").fetchone()
         if padre is None:
             user = os.environ.get("PADRE_USER", "").strip()
