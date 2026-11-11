@@ -83,7 +83,7 @@ def carregar_usuario():
     ident = session.get("usuario_id")
     if ident:
         g.usuario = get_db().execute(
-            "SELECT id,nome,usuario,perfil,ativo FROM usuarios WHERE id=?", (ident,)
+            "SELECT id,nome,usuario,perfil,ativo,grupo FROM usuarios WHERE id=?", (ident,)
         ).fetchone()
         if not g.usuario or not g.usuario["ativo"]:
             session.clear()
@@ -135,7 +135,17 @@ def escalas_para(missas):
         saida[r["missa_id"]].append(r)
     return saida
 
+def grupo_atual():
+    return g.usuario["grupo"] if g.usuario and g.usuario["perfil"] == "coordenador" else None
+
+def conferir_grupo(item):
+    if not item or (grupo_atual() and item["grupo"] != grupo_atual()):
+        abort(404)
+    return item
+
 def avisos():
+    if grupo_atual():
+        return get_db().execute("SELECT * FROM avisos WHERE grupo=? ORDER BY id DESC", (grupo_atual(),)).fetchall()
     return get_db().execute("SELECT * FROM avisos ORDER BY id DESC").fetchall()
 
 @app.route("/")
@@ -188,13 +198,15 @@ def sair():
 def painel():
     instante = agora()
     base = (instante.date().isoformat(), instante.date().isoformat(), instante.strftime("%H:%M"))
+    filtro = " AND grupo=?" if grupo_atual() else ""
+    parametros = base + ((grupo_atual(),) if grupo_atual() else ())
     proximas = get_db().execute(
         """SELECT * FROM missas WHERE (data>? OR (data=? AND hora>=?))
-           ORDER BY data,hora,id LIMIT 100""", base
+           """ + filtro + " ORDER BY data,hora,id LIMIT 100", parametros
     ).fetchall()
     anteriores = get_db().execute(
         """SELECT * FROM missas WHERE (data<? OR (data=? AND hora<?))
-           ORDER BY data DESC,hora DESC LIMIT 15""", base
+           """ + filtro + " ORDER BY data DESC,hora DESC LIMIT 15", parametros
     ).fetchall()
     lista = proximas + anteriores
     return render_template("painel.html", proximas=proximas, anteriores=anteriores,
@@ -207,13 +219,16 @@ def usuarios():
     perfil_novo = "coordenador" if g.usuario["perfil"] == "padre" else "servidor"
     if request.method == "POST":
         nome = request.form.get("nome", "").strip()
+        grupo = grupo_atual() or request.form.get("grupo", "altar")
+        if grupo not in ("altar", "leitor"):
+            abort(400)
         if not (2 <= len(nome) <= 100):
             flash("Informe um nome entre 2 e 100 caracteres.", "erro")
         elif perfil_novo == "servidor":
             # Identificadores internos aleatórios: não são contas e nunca permitem login.
             identificador = "servidor_" + secrets.token_hex(16)
             db.execute(
-                "INSERT INTO usuarios (nome,usuario,senha_hash,perfil,criado_por) VALUES (?,?,?,?,?)",
+                "INSERT INTO usuarios (nome,usuario,senha_hash,perfil,criado_por,grupo) VALUES (?,?,?,?,?,?)",
                 (nome, identificador, generate_password_hash(secrets.token_urlsafe(48)), "servidor", g.usuario["id"])
             )
             db.commit()
@@ -230,16 +245,13 @@ def usuarios():
                 flash("Esse nome de usuário já existe.", "erro")
             else:
                 db.execute(
-                    "INSERT INTO usuarios (nome,usuario,senha_hash,perfil,criado_por) VALUES (?,?,?,?,?)",
-                    (nome, login, generate_password_hash(senha), perfil_novo, g.usuario["id"])
+                    "INSERT INTO usuarios (nome,usuario,senha_hash,perfil,criado_por,grupo) VALUES (?,?,?,?,?,?)",
+                    (nome, login, generate_password_hash(senha), perfil_novo, g.usuario["id"], grupo)
                 )
                 db.commit()
                 flash("Coordenador cadastrado.", "ok")
                 return redirect(url_for("usuarios"))
-    pessoas = db.execute(
-        "SELECT id,nome,usuario,ativo FROM usuarios WHERE perfil=? ORDER BY nome",
-        (perfil_novo,)
-    ).fetchall()
+    pessoas = db.execute("SELECT id,nome,usuario,ativo,grupo FROM usuarios WHERE perfil=?" + (" AND grupo=?" if grupo_atual() else "") + " ORDER BY nome", (perfil_novo, grupo_atual()) if grupo_atual() else (perfil_novo,)).fetchall()
     return render_template("usuarios.html", pessoas=pessoas, perfil_novo=perfil_novo)
 
 @app.post("/usuarios/<int:uid>/alternar")
@@ -248,17 +260,14 @@ def alternar_usuario(uid):
     permitido = "coordenador" if g.usuario["perfil"] == "padre" else "servidor"
     db = get_db()
     pessoa = db.execute("SELECT * FROM usuarios WHERE id=? AND perfil=?", (uid, permitido)).fetchone()
-    if not pessoa:
-        abort(404)
+    conferir_grupo(pessoa)
     db.execute("UPDATE usuarios SET ativo=? WHERE id=?", (0 if pessoa["ativo"] else 1, uid))
     db.commit()
     flash("Situação atualizada.", "ok")
     return redirect(url_for("usuarios"))
 
-def todos_servidores():
-    return get_db().execute(
-        "SELECT id,nome,ativo FROM usuarios WHERE perfil='servidor' ORDER BY nome"
-    ).fetchall()
+def todos_servidores(grupo=None):
+    return get_db().execute("SELECT id,nome,ativo FROM usuarios WHERE perfil='servidor'" + (" AND grupo=?" if grupo else "") + " ORDER BY nome", (grupo,) if grupo else ()).fetchall()
 
 def sortear(db, mid, disponiveis, quantidade, data_missa, funcoes):
     """Rodízio ponderado: servidores com menos escalas nos últimos 60 dias têm preferência."""
@@ -306,7 +315,8 @@ def dados_missa_form():
 @app.route("/missas/nova", methods=["GET", "POST"])
 @acesso("padre", "coordenador")
 def nova_missa():
-    servidores = [s for s in todos_servidores() if s["ativo"]]
+    grupo = grupo_atual() or "altar"
+    servidores = [s for s in todos_servidores(grupo) if s["ativo"]]
     if request.method == "POST":
         try:
             nome, inicial, hora, quantidade, recado, funcoes = dados_missa_form()
@@ -318,15 +328,15 @@ def nova_missa():
             for dia in [inicial]:
                 if database.POSTGRES:
                     mid = db.execute(
-                        """INSERT INTO missas(nome,data,hora,quantidade,funcoes,recado,criado_por)
-                           VALUES (?,?,?,?,?,?,?) RETURNING id""",
-                        (nome, dia.isoformat(), hora, quantidade, json.dumps(funcoes), recado, g.usuario["id"])
+                        """INSERT INTO missas(nome,data,hora,quantidade,funcoes,recado,criado_por,grupo)
+                           VALUES (?,?,?,?,?,?,?,?) RETURNING id""",
+                        (nome, dia.isoformat(), hora, quantidade, json.dumps(funcoes), recado, g.usuario["id"], grupo)
                     ).fetchone()["id"]
                 else:
                     cur = db.execute(
-                        """INSERT INTO missas(nome,data,hora,quantidade,funcoes,recado,criado_por)
-                           VALUES (?,?,?,?,?,?,?)""",
-                        (nome, dia.isoformat(), hora, quantidade, json.dumps(funcoes), recado, g.usuario["id"])
+                        """INSERT INTO missas(nome,data,hora,quantidade,funcoes,recado,criado_por,grupo)
+                           VALUES (?,?,?,?,?,?,?,?)""",
+                        (nome, dia.isoformat(), hora, quantidade, json.dumps(funcoes), recado, g.usuario["id"], grupo)
                     )
                     mid = cur.lastrowid
                 for uid in disponiveis:
@@ -342,16 +352,14 @@ def nova_missa():
 
 def missa_ou_404(mid):
     item = get_db().execute("SELECT * FROM missas WHERE id=?", (mid,)).fetchone()
-    if not item:
-        abort(404)
-    return item
+    return conferir_grupo(item)
 
 @app.route("/missas/<int:mid>/editar", methods=["GET", "POST"])
 @acesso("padre", "coordenador")
 def editar_missa(mid):
     db = get_db()
     missa = missa_ou_404(mid)
-    servidores = todos_servidores()
+    servidores = todos_servidores(missa["grupo"])
     atuais = escalas_para([missa])[mid]
     if request.method == "POST":
         acao = request.form.get("acao", "salvar")
@@ -442,8 +450,8 @@ def novo_aviso():
             flash("O aviso precisa de título e mensagem válidos.", "erro")
         else:
             db = get_db()
-            db.execute("INSERT INTO avisos(titulo,mensagem,criado_por) VALUES (?,?,?)",
-                       (titulo,mensagem,g.usuario["id"]))
+            db.execute("INSERT INTO avisos(titulo,mensagem,criado_por,grupo) VALUES (?,?,?,?)",
+                       (titulo,mensagem,g.usuario["id"],grupo_atual() or "altar"))
             db.commit()
             flash("Aviso publicado.", "ok")
             return redirect(url_for("painel"))
@@ -453,6 +461,7 @@ def novo_aviso():
 @acesso("padre", "coordenador")
 def excluir_aviso(aid):
     db = get_db()
+    conferir_grupo(db.execute("SELECT grupo FROM avisos WHERE id=?", (aid,)).fetchone())
     db.execute("DELETE FROM avisos WHERE id=?", (aid,))
     db.commit()
     flash("Aviso removido.", "ok")
