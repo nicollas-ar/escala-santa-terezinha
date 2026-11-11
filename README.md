@@ -6,9 +6,9 @@ Aplicação exclusiva de **escalas e avisos** da Paróquia Santa Terezinha do Me
 - Página pública: próximas celebrações, escalas publicadas e avisos;
 - Padre: cria/gerencia coordenadores e também administra escalas e avisos;
 - Coordenadores: cadastram/ativam/desativam servidores (sem fotos), elaboram escalas, sorteiam e publicam;
-- Servidores: login próprio, acompanham as próprias escalas;
+- Servidores: não possuem conta nem senha; consultam a escala pública e pesquisam seu nome;
 - Celebrações únicas ou recorrentes (semanais ou mensais), sorteio equilibrado, edição manual e compartilhamento por imagem no WhatsApp;
-- Nenhuma pessoa ou senha fixa pré-cadastrada; nada de quiz, finanças, liturgia ou outros módulos.
+- Nenhum servidor ou coordenador pré-cadastrado; nada de quiz, finanças, liturgia ou outros módulos.
 
 ## Configuração
 Python 3.11+.
@@ -50,3 +50,6 @@ Na primeira execução, o sistema cria **somente** o usuário do padre definido 
 - `static/`: identidade visual e cartão WhatsApp.
 
 O repositório anterior `nicollas-ar/novo-escala` permanece **inalterado**.
+
+## Página pública
+A página contém somente a apresentação da paróquia, os avisos e as escalas publicadas, com busca pelo nome do servidor. Apenas padre e coordenadores fazem login. Os servidores são registros internos de escala sem credenciais utilizáveis.
