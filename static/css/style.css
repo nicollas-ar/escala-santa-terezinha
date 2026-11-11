@@ -20,3 +20,106 @@
 #escalas .data-rodape{border-top:1px solid #eab52c;margin-top:16px;padding-top:14px;color:#15523d;font-weight:700}
 #escalas .divisoria,#escalas .equipe-titulo{display:none}
 [hidden]{display:none!important}
+
+/* Redesign responsivo — identidade litúrgica, leitura clara e interação por toque */
+:root{--azul:#174c3a;--azul2:#22654c;--azul-suave:#e9f3ed;--texto:#26392f;--muted:#64746a;--creme:#f7f5ef;--borda:#e6e3d9;--rosa:#8b4356;--sombra:0 10px 30px rgba(22,65,45,.07)}
+html{scroll-padding-top:95px}
+body{background:var(--creme);color:var(--texto);-webkit-font-smoothing:antialiased}
+button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #c6932c;outline-offset:3px}
+.topbar{border-bottom:1px solid #e9e5db;background:rgba(255,253,248,.97)}
+.topbar-inner{min-height:76px}
+.identidade strong{font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px}
+.identidade small{letter-spacing:.09em;color:#69776c}
+.navegacao>a,.link-logout{color:#244b3a}
+.navegacao>a:hover,.link-logout:hover{color:#9a6d1c}
+.container{max-width:1060px}
+.pagina-publica{padding-top:0;max-width:980px}
+.cabecalho-paroquia{background:linear-gradient(180deg,#fffdf8,#f8f6ef);padding:38px 18px 31px;margin:0 -10px 0;border-bottom:2px solid #d7ae5a;border-radius:0 0 26px 26px}
+.cabecalho-paroquia img{width:108px;height:108px;filter:drop-shadow(0 7px 10px rgba(34,65,46,.12))}
+.cabecalho-sobre{display:block;font-size:11px;font-weight:800;letter-spacing:.18em;color:#9b742c;margin:13px 0 8px}
+.cabecalho-paroquia h1{font-size:clamp(29px,5vw,43px);line-height:1.12;letter-spacing:-.035em;margin:0 auto 8px}
+.cabecalho-paroquia p{margin:0;color:#657267;font-size:14px}
+.abas-escala{width:min(100%,520px);margin:25px auto 10px;padding:5px;background:#e9eee7;border-radius:16px;display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.aba-escala{min-height:49px;border:0;border-radius:12px;background:transparent;color:#375744;font-size:15px;transition:background .18s,box-shadow .18s}
+.aba-escala.ativa{background:#19543e;color:white;box-shadow:0 4px 12px rgba(20,72,51,.17)}
+#avisos,#escalas{max-width:780px;margin:30px auto 0}
+#avisos h2,#escalas h2{font-size:23px;margin:5px 0 0}
+#avisos .titulo-secao{margin-bottom:15px}
+#avisos .aviso-card{padding:18px 20px;border:1px solid #e8ddc8;border-left:4px solid #dba52b;border-radius:14px;background:#fffaf1;box-shadow:0 5px 18px rgba(83,69,32,.04)}
+#avisos .aviso-card h3{color:#23533d;font-size:16px;margin-bottom:5px}
+#avisos .aviso-card p{line-height:1.55;font-size:14px}
+#escalas .busca-escala{margin-bottom:27px!important;border-radius:16px;padding:18px 20px;box-shadow:none;background:#fff;border:1px solid #e4e8df}
+.busca-escala label{display:block;color:#244b3a;font-size:14px;font-weight:800;margin-bottom:9px}
+.busca-escala input{min-height:49px;border-radius:11px;border:1px solid #cdd9ce;background:#fcfdfb;font-size:16px}
+.busca-escala .texto-suave{margin:8px 0 0!important;font-size:12px}
+#escalas .titulo-secao{margin-bottom:18px}
+#escalas .grade-escalas{max-width:none;grid-template-columns:1fr;gap:19px}
+#escalas .celebracao{border:1px solid #dce7dd;border-top:5px solid #205d45;border-radius:20px;padding:24px 26px;box-shadow:0 10px 28px rgba(30,75,49,.055);background:#fff}
+#escalas .celebracao h3{font-size:clamp(22px,4vw,28px);line-height:1.25;margin:2px 0 15px}
+#escalas .celebracao .celebracao-cabecalho .eyebrow{display:none}
+#escalas .equipe-lista{display:grid;gap:2px}
+#escalas .equipe-lista li{display:grid;grid-template-columns:38px minmax(0,1fr);column-gap:12px;row-gap:0;padding:12px 0;border-bottom:1px solid #f0f1ec;align-items:center}
+#escalas .equipe-lista li:last-child{border-bottom:0}
+#escalas .numero{grid-row:span 2;width:38px;height:38px;border-radius:50%;background:#edf4ee;color:#256046;font-size:12px}
+#escalas .equipe-lista strong{font-size:15px;line-height:1.3;color:#243e30}
+#escalas .funcao{grid-column:2;max-width:none;text-align:left;color:#934657;font-size:13px;line-height:1.4}
+#escalas .data-rodape{font-size:13px;line-height:1.5;margin-top:16px}
+#escalas .recado{background:#f8f6f0;color:#526257;border-left:3px solid #d7b168}
+#escalas .acoes-card .btn{min-height:44px}
+.btn{border-radius:11px;min-height:44px}
+.btn-principal{background:#19543e}
+.btn-principal:hover{background:#287053}
+.btn-neutro{background:#eaf2eb}
+.form-card{border-radius:18px}
+.formulario input,.formulario select,.formulario textarea{min-height:45px}
+.check-item{border:1px solid #e8ece6;background:#f8faf7}
+.check-item:has(input:checked){background:#e9f5eb;border-color:#86b99a}
+.rodape{background:#f3f1e9;color:#607367}
+.estado-filtro{padding:30px 18px;margin-top:15px}
+@media(max-width:860px){
+ .menu-botao{width:46px;height:46px;display:grid;place-items:center;border:1px solid #dce5dc;border-radius:12px;font-size:24px}
+ .navegacao{top:76px;padding:12px 18px 20px;border-radius:0 0 18px 18px}
+ .navegacao>a,.navegacao .inline{min-height:47px;padding:12px;border-radius:10px}
+ .navegacao>a:hover{background:#f0f6f0}
+}
+@media(max-width:600px){
+ .container{padding:19px 14px 56px}
+ .pagina-publica{padding-top:0}
+ .topbar-inner{min-height:68px;padding:8px 14px}
+ .identidade img{width:40px;height:40px}
+ .identidade strong{font-size:16px}
+ .identidade small{font-size:9px}
+ .navegacao{top:68px}
+ .cabecalho-paroquia{margin:0 -14px;border-radius:0 0 22px 22px;padding:25px 17px 26px}
+ .cabecalho-paroquia img{width:82px;height:82px}
+ .cabecalho-sobre{font-size:9px;letter-spacing:.11em}
+ .cabecalho-paroquia h1{font-size:29px}
+ .cabecalho-paroquia p{font-size:12px;max-width:280px;margin:auto}
+ .abas-escala{margin:19px auto 5px}
+ #avisos,#escalas{margin-top:25px}
+ #avisos h2,#escalas h2{font-size:21px}
+ #avisos .aviso-card{padding:16px}
+ #escalas .busca-escala{padding:15px}
+ #escalas .celebracao{border-radius:17px;padding:18px 17px}
+ #escalas .celebracao h3{font-size:23px}
+ #escalas .equipe-lista li{padding:10px 0}
+ #escalas .acoes-card{display:grid;grid-template-columns:1fr}
+ #escalas .acoes-card .btn{width:100%}
+ .form-card{padding:18px}
+ .grupo-botoes{display:grid;grid-template-columns:1fr}
+ .grupo-botoes>.btn{width:100%}
+ .lista-usuarios li{align-items:flex-start}
+ .linha-funcao{min-width:0}
+ .linha-funcao input{flex:1;min-width:0}
+ .linha-funcao button{white-space:nowrap;padding:9px}
+ .campos-grade,.grade-checkboxes{grid-template-columns:1fr}
+ .pagina-intro h1{font-size:clamp(27px,7vw,36px)}
+}
+@media(max-width:360px){
+ .identidade strong{font-size:14px}
+ .identidade small{font-size:8px}
+ .cabecalho-paroquia h1{font-size:25px}
+ #escalas .celebracao{padding:16px 13px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
