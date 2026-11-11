@@ -160,3 +160,31 @@ html,body{max-width:100%;overflow-x:clip}
  #escalas .equipe-lista li{grid-template-columns:34px minmax(0,1fr);gap:0 10px}
  #escalas .numero{width:34px;height:34px}
 }
+
+/* Acolhimento visual: papel quente, verde suave, detalhes dourados e leitura tranquila. */
+:root{--creme:#f8f5ed;--borda:#e8e1d2;--muted:#6f766d;--sombra:0 7px 24px rgba(64,67,43,.055)}
+body{background:radial-gradient(circle at 50% 0%,#fffdf8 0%,#f8f5ed 70%);color:#30483b}
+.topbar{background:#fffdf8;border-color:#ebe5d9}
+.pagina-publica{max-width:920px}
+.cabecalho-paroquia{background:linear-gradient(145deg,#fffdf7,#f4f0e5);border-bottom-color:#c9a65c;border-radius:0 0 24px 24px}
+.cabecalho-paroquia img{border-radius:16px;box-shadow:0 4px 18px rgba(45,69,47,.08)}
+.cabecalho-paroquia p{color:#758071}
+.abas-escala{background:#eaece2;border:1px solid #e1e5d9}
+.aba-escala.ativa{background:#285c46;box-shadow:0 3px 9px rgba(39,83,60,.15)}
+#avisos .aviso-card{background:#fffaf0;border-color:#eee1c7;border-left-color:#d5ad5e;border-radius:16px}
+#escalas .celebracao{border:1px solid #e6e3d8;border-top:4px solid #48775d;border-radius:19px;background:#fffefa;box-shadow:0 8px 24px rgba(62,67,45,.06)}
+#escalas .celebracao h3{color:#285940}
+#escalas .equipe-lista li{border-bottom-color:#eeeae0}
+#escalas .numero{background:#edf2e9;color:#386c4e}
+#escalas .funcao{color:#8a5360}
+#escalas .data-rodape{border-top-color:#e7d8b4}
+#escalas .recado{background:#f7f3e9;border-left-color:#cba35b}
+.estado-vazio{background:#fffdf8;border-color:#d8d5c8}
+.rodape{background:#f3f0e7}
+@media(max-width:600px){
+ .cabecalho-paroquia{padding-top:17px;padding-bottom:18px}
+ .cabecalho-paroquia img{width:65px;height:65px}
+ #avisos,#escalas{margin-top:18px}
+ #escalas .celebracao{padding:18px 16px}
+ #escalas .equipe-lista li{padding:11px 0}
+}
