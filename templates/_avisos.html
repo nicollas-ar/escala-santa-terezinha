@@ -1,0 +1,19 @@
+{% if avisos %}
+<section class="secao" id="avisos">
+  <div class="titulo-secao"><div><span class="eyebrow">Comunicados</span><h2>Avisos da equipe</h2></div></div>
+  <div class="avisos-grid">
+    {% for a in avisos %}
+      <article class="aviso-card"><span class="aviso-icone">✦</span>
+        <div class="aviso-texto"><h3>{{ a.titulo }}</h3><p>{{ a.mensagem }}</p>
+          {% if usuario_logado and usuario_logado.perfil in ('padre','coordenador') %}
+            <form method="post" action="{{ url_for('excluir_aviso',aid=a.id) }}" onsubmit="return confirm('Retirar este aviso?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn-link" type="submit">Retirar aviso</button>
+            </form>
+          {% endif %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
