@@ -2,25 +2,25 @@
 {% block conteudo %}
 <section class="cabecalho-paroquia">
 <img src="{{ url_for('static',filename='img/logo.svg') }}" alt="Logo da paróquia">
-<h1>Escalas da Paróquia Santa Terezinha</h1>
+<span class="cabecalho-sobre">PARÓQUIA SANTA TEREZINHA DO MENINO JESUS</span><h1>Escalas de serviço</h1><p>Servir ao altar e à Palavra com dedicação e amor.</p>
 </section>
-<div class="abas-escala" role="tablist" aria-label="Equipe">
-<button class="aba-escala ativa" type="button" role="tab" data-grupo="altar" aria-selected="true">Altar</button>
-<button class="aba-escala" type="button" role="tab" data-grupo="leitor" aria-selected="false">Leitores</button>
+<div class="abas-escala" role="group" aria-label="Escolha a equipe">
+<button class="aba-escala ativa" type="button" data-grupo="altar" aria-selected="true">Altar</button>
+<button class="aba-escala" type="button" data-grupo="leitor" aria-selected="false">Leitores</button>
 </div>
-<section id="avisos" class="secao"><h2>Avisos da equipe</h2>
+<section id="avisos" class="secao"><div class="titulo-secao"><div><span class="eyebrow">COMUNICADOS</span><h2>Avisos da equipe</h2></div></div>
 {% for a in avisos %}<article class="aviso-card aviso-filtravel" data-grupo="{{ a.grupo }}"><div class="aviso-texto"><h3>{{ a.titulo }}</h3><p>{{ a.mensagem }}</p></div></article>{% endfor %}
 <p id="sem-avisos" class="texto-suave" hidden>Nenhum aviso nesta equipe.</p></section>
 <section class="secao" id="escalas">
-  <div class="form-card" style="margin-bottom:24px">
-    <label for="buscar-servidor" style="display:block;font-weight:700;color:#162b4f;margin-bottom:8px">Encontre seu nome na escala</label>
-    <input id="buscar-servidor" type="search" placeholder="Digite seu nome..." autocomplete="off" aria-describedby="resultado-busca">
+  <div class="form-card busca-escala">
+    <label for="buscar-servidor">Encontre seu nome na escala</label>
+    <input id="buscar-servidor" type="search" placeholder="Buscar servidor pelo nome…" autocomplete="off" aria-describedby="resultado-busca">
     <p id="resultado-busca" class="texto-suave" role="status" style="margin:8px 0 0">Todas as escalas publicadas estão abaixo.</p>
   </div>
-  <div class="titulo-secao"><div><span class="eyebrow">Organização litúrgica</span><h2>Próximas escalas</h2></div><span class="subtitulo">{{ missas|length }} celebrações</span></div>
-  {% if missas %}<div class="grade-escalas">
+  <div class="titulo-secao"><div><span class="eyebrow">CELEBRAÇÕES</span><h2>Próximas escalas</h2></div></div>
+  {% if missas %}<div class="grade-escalas" id="lista-escalas">
     {% for m in missas %}<div class="escala-filtravel" data-grupo="{{ m.grupo }}">{% include "_missa.html" %}</div>{% endfor %}
-  </div>{% else %}<div class="estado-vazio"><span>✝</span><h3>Aguardando as próximas celebrações</h3><p>As escalas publicadas aparecerão aqui.</p></div>{% endif %}
+  </div><div id="sem-escalas-filtradas" class="estado-vazio estado-filtro" hidden><h3>Nenhuma escala nesta seleção</h3><p>Experimente outra equipe ou outro nome.</p></div>{% else %}<div class="estado-vazio"><span>✝</span><h3>Aguardando as próximas celebrações</h3><p>As escalas publicadas aparecerão aqui.</p></div>{% endif %}
 </section>
 {% block scripts %}
 <script>
@@ -51,6 +51,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!card.hidden) avisos++;
     });
     document.getElementById('sem-avisos').hidden = avisos !== 0;
+    const vazio = document.getElementById('sem-escalas-filtradas');
+    if (vazio) vazio.hidden = encontradas > 0;
     resultado.textContent = termo ? encontradas + ' escala(s) encontrada(s).' : 'Exibindo escalas de ' + (grupo === 'altar' ? 'altar' : 'leitores') + '.';
   }
   campo.addEventListener('input', filtrar);
