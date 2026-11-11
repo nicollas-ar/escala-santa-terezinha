@@ -278,9 +278,11 @@ def sortear(db, mid, disponiveis, quantidade, data_missa, funcoes):
         escolhidos.append(elegido)
         candidatos.remove(elegido)
     rng.shuffle(escolhidos)
+    funcoes_sorteadas = list(funcoes)
+    rng.shuffle(funcoes_sorteadas)
     db.execute("DELETE FROM escala WHERE missa_id=?", (mid,))
     for ordem, servidor in enumerate(escolhidos):
-        funcao = funcoes[ordem] if ordem < len(funcoes) else "Servidor"
+        funcao = funcoes_sorteadas[ordem] if ordem < len(funcoes_sorteadas) else "Servidor"
         db.execute("INSERT INTO escala (missa_id,servidor_id,funcao,ordem) VALUES (?,?,?,?)",
                    (mid, servidor, funcao, ordem))
 
@@ -290,11 +292,11 @@ def dados_missa_form():
     hora = request.form.get("hora", "")
     quantidade = int(request.form.get("quantidade", "0"))
     recado = request.form.get("recado", "").strip()
-    funcoes = [x.strip() for x in request.form.get("funcoes", "").splitlines() if x.strip()]
+    funcoes = [x.strip() for x in request.form.getlist("funcoes") if x.strip()]
     if not (2 <= len(nome) <= 100 and len(recado) <= 300 and 1 <= quantidade <= 30):
         raise ValueError("Nome, quantidade ou recado inválidos.")
-    if len(funcoes) > 30 or any(len(x) > 45 for x in funcoes):
-        raise ValueError("Informe até 30 funções de no máximo 45 caracteres.")
+    if len(funcoes) != quantidade or any(len(x) > 45 for x in funcoes):
+        raise ValueError("Adicione uma função por vaga (até 30), com no máximo 45 caracteres.")
     data_obj = date.fromisoformat(data_txt)
     if data_obj < agora().date():
         raise ValueError("A celebração não pode começar em uma data passada.")
