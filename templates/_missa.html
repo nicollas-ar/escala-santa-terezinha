@@ -1,0 +1,43 @@
+{% set equipe = escalas.get(m.id, []) %}
+<article class="celebracao">
+  <div class="celebracao-cabecalho">
+    <div><div class="eyebrow">Celebração</div><h3>{{ m.nome }}</h3></div>
+    {% if admin_view is defined and admin_view %}
+      <span class="tag {{ 'tag-publicado' if m.publicada else 'tag-rascunho' }}">{{ 'Publicada' if m.publicada else 'Rascunho' }}</span>
+    {% endif %}
+  </div>
+  <div class="data-celebracao"><span class="icon-data">◷</span><span>{{ m.data|data_bonita }} · {{ m.hora|hora_bonita }}</span></div>
+  {% if equipe %}
+    <div class="divisoria"></div>
+    <div class="equipe-titulo">Equipe escalada <span>{{ equipe|length }} {{ 'pessoa' if equipe|length == 1 else 'pessoas' }}</span></div>
+    <ul class="equipe-lista">
+      {% for e in equipe %}
+        <li><span class="numero">{{ "%02d"|format(loop.index) }}</span><strong>{{ e.nome }}</strong><span class="funcao">{{ e.funcao }}</span></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="vazio-inline">A equipe ainda não foi definida.</p>
+  {% endif %}
+  {% if m.recado %}<div class="recado"><strong>Orientação:</strong> {{ m.recado }}</div>{% endif %}
+  <div class="acoes-card">
+    {% if equipe and m.publicada %}
+      {% set nomes = namespace(items=[]) %}
+      {% for e in equipe %}
+        {% set nomes.items = nomes.items + [[e.nome,e.funcao]] %}
+      {% endfor %}
+      {% set cartao = {'nome':m.nome,'data':m.data,'quando':m.data|data_bonita ~ ' às ' ~ m.hora|hora_bonita,'recado':m.recado,'equipe':nomes.items} %}
+      <button type="button" class="btn btn-principal btn-pequeno" data-cartao-escala='{{ cartao|tojson }}'>Compartilhar escala</button><span class="status-compartilhar" role="status"></span>
+    {% endif %}
+    {% if admin_view is defined and admin_view %}
+      <a class="btn btn-neutro btn-pequeno" href="{{ url_for('editar_missa',mid=m.id) }}">Editar escala</a>
+      <form method="post" action="{{ url_for('publicacao',mid=m.id) }}" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-neutro btn-pequeno" type="submit">{{ 'Despublicar' if m.publicada else 'Publicar' }}</button>
+      </form>
+      <form method="post" action="{{ url_for('excluir_missa',mid=m.id) }}" class="inline" onsubmit="return confirm('Excluir esta celebração e sua escala?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-perigo btn-pequeno" type="submit">Excluir</button>
+      </form>
+    {% endif %}
+  </div>
+</article>
