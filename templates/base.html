@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#152846">
+  <meta name="theme-color" content="#174c3a">
   <meta name="description" content="Escalas e avisos da Paróquia Santa Terezinha do Menino Jesus.">
   <title>{% block titulo %}Escala Santa Terezinha{% endblock %}</title>
   <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}" type="image/svg+xml">
@@ -16,7 +16,7 @@
       <img src="{{ url_for('static',filename='img/logo.svg') }}" alt="" width="54" height="54">
       <span><strong>Santa Terezinha</strong><small>Escalas & Avisos</small></span>
     </a>
-    <button id="menu-botao" class="menu-botao" aria-label="Abrir navegação" aria-controls="navegacao" aria-expanded="false">☰</button>
+    <button id="menu-botao" class="menu-botao" type="button" aria-label="Abrir navegação" aria-controls="navegacao" aria-expanded="false">☰</button>
     <nav id="navegacao" class="navegacao" aria-label="Navegação principal">
       <a href="{{ url_for('index') }}">Escalas</a>
       {% if usuario_logado %}
@@ -34,7 +34,7 @@
     </nav>
   </div>
 </header>
-<main class="container">
+<main class="container {% if request.endpoint == 'index' %}pagina-publica{% endif %}">
   {% with mensagens = get_flashed_messages(with_categories=true) %}
     {% for tipo,mensagem in mensagens %}
       <div class="alerta alerta-{{ tipo }}" role="status">{{ mensagem }}</div>
