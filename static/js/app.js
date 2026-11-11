@@ -13,6 +13,51 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   frequencia?.addEventListener("change", ajustarRepeticoes);
   ajustarRepeticoes();
+  const listaFuncoes = document.getElementById("lista-funcoes");
+  const adicionarFuncao = document.getElementById("adicionar-funcao");
+  const quantidade = document.querySelector('input[name="quantidade"]');
+  const contadorFuncoes = document.getElementById("contador-funcoes");
+  function atualizarFuncoes() {
+    if (!listaFuncoes) return;
+    const n = listaFuncoes.querySelectorAll(".linha-funcao").length;
+    const alvo = Number(quantidade?.value || 0);
+    if (contadorFuncoes) contadorFuncoes.textContent = n + " de " + alvo + " funções adicionadas";
+    if (adicionarFuncao) adicionarFuncao.disabled = n >= 30 || (alvo > 0 && n >= alvo);
+  }
+  function criarFuncao(valor = "") {
+    if (!listaFuncoes || listaFuncoes.children.length >= 30) return;
+    const linha = document.createElement("div");
+    linha.className = "linha-funcao";
+    linha.style.cssText = "display:flex;gap:8px;align-items:center";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = "funcoes";
+    input.maxLength = 45;
+    input.required = true;
+    input.placeholder = "Ex.: Missal";
+    input.setAttribute("aria-label", "Nome da função");
+    input.value = valor;
+    const remover = document.createElement("button");
+    remover.type = "button";
+    remover.className = "btn btn-perigo btn-pequeno remover-funcao";
+    remover.textContent = "Remover";
+    linha.append(input, remover);
+    listaFuncoes.append(linha);
+    atualizarFuncoes();
+    return input;
+  }
+  adicionarFuncao?.addEventListener("click", () => criarFuncao()?.focus());
+  listaFuncoes?.addEventListener("click", e => {
+    if (e.target.closest(".remover-funcao")) {
+      e.target.closest(".linha-funcao").remove();
+      atualizarFuncoes();
+    }
+  });
+  quantidade?.addEventListener("input", atualizarFuncoes);
+  if (listaFuncoes && !listaFuncoes.children.length) {
+    criarFuncao("Missal");
+  }
+  atualizarFuncoes();
   document.querySelectorAll("[data-selecionar]").forEach(botao => {
     botao.addEventListener("click", () => {
       const selecionar = botao.dataset.selecionar === "todos";
