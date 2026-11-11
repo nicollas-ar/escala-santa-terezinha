@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Entrar | Escala Santa Terezinha{% endblock %}
+{% block conteudo %}
+<div class="form-centro"><section class="form-card">
+  <span class="eyebrow">Área reservada</span><h1>Bem-vindo de volta</h1>
+  <p>Acesso de padres, coordenadores e servidores cadastrados.</p>
+  <form method="post" class="formulario">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Nome de usuário<input name="usuario" type="text" autocomplete="username" required autofocus></label>
+    <label>Senha<input name="senha" type="password" autocomplete="current-password" required></label>
+    <button class="btn btn-principal btn-largo" type="submit">Entrar</button>
+  </form>
+</section></div>
+{% endblock %}
