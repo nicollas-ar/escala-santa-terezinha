@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}Nova celebração | Escala Santa Terezinha{% endblock %}
 {% block conteudo %}
-<section class="pagina-intro"><span class="eyebrow">Planejamento litúrgico</span><h1>Nova celebração</h1><p>Preencha os dados, marque os servidores disponíveis e gere um rascunho da escala.</p></section>
+<section class="pagina-intro"><span class="eyebrow">Planejamento litúrgico</span><h1>Nova celebração</h1><p>Cadastre uma celebração por vez, marque os servidores disponíveis e gere um rascunho da escala.</p></section>
 <form method="post" class="form-card formulario">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="campos-grade">
@@ -9,8 +9,6 @@
     <label>Data<input name="data" type="date" min="{{ hoje }}" required value="{{ request.form.get('data',hoje) }}"></label>
     <label>Horário<input name="hora" type="time" required value="{{ request.form.get('hora','18:00') }}"></label>
     <label>Quantidade de servidores<input name="quantidade" type="number" min="1" max="30" required value="{{ request.form.get('quantidade','4') }}"></label>
-    <label>Repetição<select name="frequencia" id="frequencia"><option value="">Apenas uma vez</option><option value="semanal" {{ 'selected' if request.form.get('frequencia')=='semanal' else '' }}>Semanal</option><option value="mensal" {{ 'selected' if request.form.get('frequencia')=='mensal' else '' }}>Mensal</option></select></label>
-    <label id="campo-repeticoes">Quantidade de datas (máx. 12)<input name="repeticoes" type="number" min="1" max="12" value="{{ request.form.get('repeticoes','4') }}"></label>
     <label class="span2">Funções por vaga (uma em cada linha; opcional)<textarea name="funcoes" rows="4" placeholder="Missal&#10;Leitor&#10;Cerimoniário">{{ request.form.get('funcoes','') }}</textarea></label>
     <label class="span2">Orientações para a equipe<textarea name="recado" rows="3" maxlength="300" placeholder="Ex.: Chegar 30 minutos antes.">{{ request.form.get('recado','') }}</textarea></label>
   </div>
