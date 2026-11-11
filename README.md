@@ -7,7 +7,7 @@ Aplicação exclusiva de **escalas e avisos** da Paróquia Santa Terezinha do Me
 - Padre: cria/gerencia coordenadores e também administra escalas e avisos;
 - Coordenadores: cadastram/ativam/desativam servidores (sem fotos), elaboram escalas, sorteiam e publicam;
 - Servidores: não possuem conta nem senha; consultam a escala pública e pesquisam seu nome;
-- Celebrações únicas ou recorrentes (semanais ou mensais), sorteio equilibrado, edição manual e compartilhamento por imagem no WhatsApp;
+- Celebrações cadastradas individualmente, sorteio equilibrado, edição manual e compartilhamento por imagem no WhatsApp;
 - Nenhum servidor ou coordenador pré-cadastrado; nada de quiz, finanças, liturgia ou outros módulos.
 
 ## Configuração
