@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<section class="hero">
+  <div class="hero-texto"><span class="eyebrow">Paróquia Santa Terezinha do Menino Jesus</span>
+    <h1>Servir com amor.<br><em>Organizar com cuidado.</em></h1>
+    <p>Consulte as próximas celebrações, a equipe de servidores e os comunicados da nossa paróquia.</p>
+    <a href="#escalas" class="btn btn-principal">Ver próximas escalas</a>
+  </div>
+  <div class="hero-simbolo"><img src="{{ url_for('static',filename='img/logo.svg') }}" alt="Emblema da paróquia"></div>
+</section>
+{% include "_avisos.html" %}
+<section class="secao" id="escalas">
+  <div class="titulo-secao"><div><span class="eyebrow">Organização litúrgica</span><h2>Próximas escalas</h2></div><span class="subtitulo">{{ missas|length }} celebrações</span></div>
+  {% if missas %}<div class="grade-escalas">
+    {% for m in missas %}{% include "_missa.html" %}{% endfor %}
+  </div>{% else %}<div class="estado-vazio"><span>✝</span><h3>Aguardando as próximas celebrações</h3><p>As escalas publicadas aparecerão aqui.</p></div>{% endif %}
+</section>
+{% endblock %}
