@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#152846">
+  <meta name="description" content="Escalas e avisos da Paróquia Santa Terezinha do Menino Jesus.">
+  <title>{% block titulo %}Escala Santa Terezinha{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="identidade" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static',filename='img/logo.svg') }}" alt="" width="54" height="54">
+      <span><strong>Santa Terezinha</strong><small>Escalas & Avisos</small></span>
+    </a>
+    <button id="menu-botao" class="menu-botao" aria-label="Abrir navegação" aria-controls="navegacao" aria-expanded="false">☰</button>
+    <nav id="navegacao" class="navegacao" aria-label="Navegação principal">
+      <a href="{{ url_for('index') }}">Escalas</a>
+      {% if usuario_logado %}
+        {% if usuario_logado.perfil == 'servidor' %}
+          <a href="{{ url_for('minhas_escalas') }}">Minhas escalas</a>
+        {% else %}
+          <a href="{{ url_for('painel') }}">Painel</a>
+          <a href="{{ url_for('usuarios') }}">{{ 'Coordenadores' if usuario_logado.perfil == 'padre' else 'Servidores' }}</a>
+          <a href="{{ url_for('nova_missa') }}">Nova celebração</a>
+          <a href="{{ url_for('novo_aviso') }}">Novo aviso</a>
+        {% endif %}
+        <form action="{{ url_for('sair') }}" method="post" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-logout">Sair</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('entrar') }}" class="btn btn-contorno">Entrar</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+<main class="container">
+  {% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% for tipo,mensagem in mensagens %}
+      <div class="alerta alerta-{{ tipo }}" role="status">{{ mensagem }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block conteudo %}{% endblock %}
+</main>
+<footer class="rodape"><span>✝</span> Paróquia Santa Terezinha do Menino Jesus <span>·</span> Escalas e avisos</footer>
+<script src="{{ url_for('static',filename='js/app.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
