@@ -45,13 +45,20 @@ class AplicacaoTests(unittest.TestCase):
         resp = self._post("/usuarios", {"nome":"Servidor Exemplo","usuario":"serv_demo","senha":"senha-servidor-123"})
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b"Servidor Exemplo", resp.data)
+        with app.app_context():
+            c = database.conectar()
+            servidor_id = c.execute("SELECT id FROM usuarios WHERE usuario='serv_demo'").fetchone()["id"]
+            c.close()
         resp = self._post("/missas/nova", {
             "nome":"Missa de teste", "data":"2099-05-20","hora":"18:00",
-            "quantidade":"1","disponiveis":"1","recado":"Chegar cedo"
+            "quantidade":"1","disponiveis":str(servidor_id),"recado":"Chegar cedo"
         })
-        # O ID pode variar entre execuções do conjunto de testes.
-        # Basta checar a página funcional e o cadastro de servidores.
         self.assertEqual(resp.status_code, 200)
+        with app.app_context():
+            c = database.conectar()
+            self.assertEqual(c.execute("SELECT COUNT(*) AS n FROM missas").fetchone()["n"], 1)
+            self.assertEqual(c.execute("SELECT COUNT(*) AS n FROM escala").fetchone()["n"], 1)
+            c.close()
 
 if __name__ == "__main__":
     unittest.main()
