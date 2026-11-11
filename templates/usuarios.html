@@ -3,22 +3,24 @@
 {% block conteudo %}
 <section class="pagina-intro"><span class="eyebrow">Administração de acessos</span>
   <h1>{{ 'Coordenadores' if perfil_novo=='coordenador' else 'Servidores' }}</h1>
-  <p>{{ 'O padre cadastra os coordenadores, que depois cadastram os servidores.' if perfil_novo=='coordenador' else 'Cadastre cada servidor com nome, usuário e senha. Não são utilizadas fotos.' }}</p>
+  <p>{{ 'O padre cadastra os coordenadores, que depois cadastram os servidores.' if perfil_novo=='coordenador' else 'Cadastre somente o nome do servidor. Ele consulta a escala geral sem fazer login.' }}</p>
 </section>
 <div class="duas-colunas">
 <section class="form-card"><h2>Adicionar {{ 'coordenador' if perfil_novo=='coordenador' else 'servidor' }}</h2>
   <form method="post" class="formulario">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>Nome completo<input name="nome" maxlength="100" required placeholder="Nome da pessoa"></label>
+    {% if perfil_novo == 'coordenador' %}
     <label>Nome de usuário<input name="usuario" maxlength="40" minlength="3" required placeholder="ex.: maria_silva" autocomplete="off"></label>
     <label>Senha inicial (mínimo 12 caracteres)<input name="senha" type="password" minlength="12" required autocomplete="new-password"></label>
+    {% endif %}
     <button type="submit" class="btn btn-principal">Cadastrar</button>
   </form>
 </section>
 <section class="form-card"><div class="titulo-secao"><h2>Cadastrados</h2><span class="subtitulo">{{ pessoas|length }}</span></div>
   {% if pessoas %}<ul class="lista-usuarios">
     {% for p in pessoas %}
-      <li><div class="user-resumo"><strong>{{ p.nome }}</strong><small>@{{ p.usuario }}</small></div>
+      <li><div class="user-resumo"><strong>{{ p.nome }}</strong>{% if perfil_novo == 'coordenador' %}<small>@{{ p.usuario }}</small>{% endif %}</div>
       <form method="post" action="{{ url_for('alternar_usuario',uid=p.id) }}" class="inline">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button class="btn btn-pequeno {{ 'btn-perigo' if p.ativo else 'btn-neutro' }}" type="submit">{{ 'Desativar' if p.ativo else 'Reativar' }}</button>
