@@ -6,13 +6,19 @@ document.addEventListener("DOMContentLoaded", () => {
     botao.setAttribute("aria-expanded", String(aberto));
     botao.textContent = aberto ? "✕" : "☰";
   });
-  const frequencia = document.querySelector("#frequencia");
-  const repeticoes = document.querySelector("#campo-repeticoes");
-  function ajustarRepeticoes() {
-    if (repeticoes && frequencia) repeticoes.hidden = !frequencia.value;
-  }
-  frequencia?.addEventListener("change", ajustarRepeticoes);
-  ajustarRepeticoes();
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && navegacao?.classList.contains("aberto")) {
+      navegacao.classList.remove("aberto");
+      botao?.setAttribute("aria-expanded", "false");
+      if (botao) botao.textContent = "☰";
+      botao?.focus();
+    }
+  });
+  navegacao?.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+    navegacao.classList.remove("aberto");
+    botao?.setAttribute("aria-expanded", "false");
+    if (botao) botao.textContent = "☰";
+  }));
   const listaFuncoes = document.getElementById("lista-funcoes");
   const adicionarFuncao = document.getElementById("adicionar-funcao");
   const quantidade = document.querySelector('input[name="quantidade"]');
