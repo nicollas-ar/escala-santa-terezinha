@@ -20,8 +20,9 @@
   {% endif %}
   {% if m.recado %}<div class="recado"><strong>Orientação:</strong> {{ m.recado }}</div>{% endif %}
   <div class="data-celebracao data-rodape">{{ m.data|data_bonita }} · {{ m.hora|hora_bonita }}</div>
+  {% if admin_view is defined and admin_view %}
   <div class="acoes-card">
-    {% if equipe and m.publicada %}
+    {% if admin_view is defined and admin_view and usuario_logado and usuario_logado.perfil in ("coordenador", "padre") and equipe and m.publicada %}
       {% set nomes = namespace(items=[]) %}
       {% for e in equipe %}
         {% set nomes.items = nomes.items + [[e.nome,e.funcao]] %}
@@ -41,4 +42,5 @@
       </form>
     {% endif %}
   </div>
+  {% endif %}
 </article>
