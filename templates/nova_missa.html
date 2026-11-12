@@ -2,6 +2,13 @@
 {% block titulo %}Nova celebração | Escala Santa Terezinha{% endblock %}
 {% block conteudo %}
 <section class="pagina-intro"><span class="eyebrow">Planejamento litúrgico</span><h1>Nova celebração</h1><p>Cadastre uma celebração por vez, marque os servidores disponíveis e gere um rascunho da escala.</p></section>
+{% if usuario_logado.perfil == "padre" %}
+<nav class="grupo-botoes" aria-label="Equipe da celebração">
+  {% for codigo, nome in grupos.items() %}
+  <a class="btn {{ 'btn-principal' if codigo == grupo else 'btn-contorno' }}" href="{{ url_for('nova_missa', grupo=codigo) }}"{% if codigo == grupo %} aria-current="page"{% endif %}>{{ nome }}</a>
+  {% endfor %}
+</nav>
+{% endif %}
 <form method="post" class="form-card formulario">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="campos-grade">

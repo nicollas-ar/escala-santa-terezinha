@@ -70,5 +70,49 @@ class AplicacaoTests(unittest.TestCase):
         self.assertEqual(self.client.get("/missas/1/editar").status_code, 404)
         self.assertNotIn(b"Servidor Exemplo", self.client.get("/usuarios").data)
 
+    def test_separacao_das_equipes_de_servidores(self):
+        self.client.get("/entrar")
+        self._post("/entrar", {"usuario": "padre_teste", "senha": "senha-forte-de-teste-123"})
+        resposta = self._post("/usuarios", {
+            "nome": "Coordenação de Acólitos", "usuario": "coord_acolitos",
+            "senha": "senha-acolitos-123", "grupo": "acolitos",
+        })
+        self.assertIn("Coordenação de Acólitos", resposta.get_data(as_text=True))
+
+        self._post("/sair", {})
+        self.client.get("/entrar")
+        self._post("/entrar", {"usuario": "coord_acolitos", "senha": "senha-acolitos-123"})
+        resposta = self._post("/usuarios", {"nome": "Servidor dos Acólitos"})
+        self.assertIn("Servidor dos Acólitos", resposta.get_data(as_text=True))
+        db = database.conectar()
+        try:
+            servidor = db.execute("SELECT id,grupo FROM usuarios WHERE nome=?", ("Servidor dos Acólitos",)).fetchone()
+            self.assertEqual(servidor["grupo"], "acolitos")
+        finally:
+            db.close()
+
+        self._post("/missas/nova?grupo=leitor", {
+            "nome": "Missa dos Acólitos", "data": "2099-06-01", "hora": "10:00",
+            "quantidade": "1", "disponiveis": str(servidor["id"]), "funcoes": "Missal",
+        })
+        db = database.conectar()
+        try:
+            missa = db.execute("SELECT id,grupo FROM missas WHERE nome=?", ("Missa dos Acólitos",)).fetchone()
+            self.assertEqual(missa["grupo"], "acolitos")
+        finally:
+            db.close()
+        self.assertNotIn("Missa dos Acólitos", self.client.get("/?grupo=acolitos").get_data(as_text=True))
+        self._post(f"/missas/{missa['id']}/publicacao", {})
+        self._post("/avisos/novo", {"titulo": "Ensaio dos Acólitos", "mensagem": "Trazer o missal."})
+        self._post("/sair", {})
+
+        pagina = self.client.get("/?grupo=acolitos").get_data(as_text=True)
+        self.assertIn("Missa dos Acólitos", pagina)
+        self.assertIn("Ensaio dos Acólitos", pagina)
+        for grupo in ("coroinhas", "cerimoniarios", "altar", "leitor"):
+            pagina = self.client.get(f"/?grupo={grupo}").get_data(as_text=True)
+            self.assertNotIn("Missa dos Acólitos", pagina)
+            self.assertNotIn("Ensaio dos Acólitos", pagina)
+
 if __name__ == "__main__":
     unittest.main()
