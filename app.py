@@ -40,6 +40,14 @@ DIAS = ("segunda-feira", "terça-feira", "quarta-feira", "quinta-feira",
 MESES = ("janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho",
          "agosto", "setembro", "outubro", "novembro", "dezembro")
 
+GRUPOS_SERVIDORES = {
+    "coroinhas": "Coroinhas",
+    "acolitos": "Acólitos",
+    "cerimoniarios": "Cerimoniários",
+    "altar": "Altar geral",
+}
+GRUPOS = {**GRUPOS_SERVIDORES, "leitor": "Ministros"}
+
 def agora():
     return datetime.now(FUSO)
 
@@ -96,7 +104,7 @@ def carregar_usuario():
 
 @app.context_processor
 def globais():
-    return {"usuario_logado": g.get("usuario"), "hoje": hoje_iso()}
+    return {"usuario_logado": g.get("usuario"), "hoje": hoje_iso(), "grupos": GRUPOS}
 
 @app.after_request
 def seguranca(resposta):
@@ -143,21 +151,29 @@ def conferir_grupo(item):
         abort(404)
     return item
 
-def avisos():
-    if grupo_atual():
-        return get_db().execute("SELECT * FROM avisos WHERE grupo=? ORDER BY id DESC", (grupo_atual(),)).fetchall()
+def grupo_selecionado(valor):
+    if valor not in GRUPOS:
+        abort(400)
+    return valor
+
+def avisos(grupo=None):
+    grupo = grupo or grupo_atual()
+    if grupo:
+        return get_db().execute("SELECT * FROM avisos WHERE grupo=? ORDER BY id DESC", (grupo,)).fetchall()
     return get_db().execute("SELECT * FROM avisos ORDER BY id DESC").fetchall()
 
 @app.route("/")
 def index():
+    grupo = grupo_selecionado(request.args.get("grupo", "altar"))
     instante = agora()
     m = get_db().execute(
-        """SELECT * FROM missas WHERE publicada=1
+        """SELECT * FROM missas WHERE publicada=1 AND grupo=?
            AND (data>? OR (data=? AND hora>=?))
            ORDER BY data,hora,id LIMIT 60""",
-        (instante.date().isoformat(), instante.date().isoformat(), instante.strftime("%H:%M"))
+        (grupo, instante.date().isoformat(), instante.date().isoformat(), instante.strftime("%H:%M"))
     ).fetchall()
-    return render_template("index.html", missas=m, escalas=escalas_para(m), avisos=avisos())
+    return render_template("index.html", missas=m, escalas=escalas_para(m), avisos=avisos(grupo),
+                           grupo=grupo, grupos_servidores=GRUPOS_SERVIDORES)
 
 @app.route("/saude")
 def saude():
@@ -219,9 +235,7 @@ def usuarios():
     perfil_novo = "coordenador" if g.usuario["perfil"] == "padre" else "servidor"
     if request.method == "POST":
         nome = request.form.get("nome", "").strip()
-        grupo = grupo_atual() or request.form.get("grupo", "altar")
-        if grupo not in ("altar", "leitor"):
-            abort(400)
+        grupo = grupo_atual() or grupo_selecionado(request.form.get("grupo", "altar"))
         if not (2 <= len(nome) <= 100):
             flash("Informe um nome entre 2 e 100 caracteres.", "erro")
         elif perfil_novo == "servidor":
@@ -229,7 +243,7 @@ def usuarios():
             identificador = "servidor_" + secrets.token_hex(16)
             db.execute(
                 "INSERT INTO usuarios (nome,usuario,senha_hash,perfil,criado_por,grupo) VALUES (?,?,?,?,?,?)",
-                (nome, identificador, generate_password_hash(secrets.token_urlsafe(48)), "servidor", g.usuario["id"])
+                (nome, identificador, generate_password_hash(secrets.token_urlsafe(48)), "servidor", g.usuario["id"], grupo)
             )
             db.commit()
             flash("Servidor cadastrado apenas com o nome.", "ok")
@@ -315,7 +329,7 @@ def dados_missa_form():
 @app.route("/missas/nova", methods=["GET", "POST"])
 @acesso("padre", "coordenador")
 def nova_missa():
-    grupo = grupo_atual() or "altar"
+    grupo = grupo_atual() or grupo_selecionado(request.args.get("grupo", "altar"))
     servidores = [s for s in todos_servidores(grupo) if s["ativo"]]
     if request.method == "POST":
         try:
@@ -348,7 +362,7 @@ def nova_missa():
         except (ValueError, OverflowError) as exc:
             get_db().rollback()
             flash(str(exc) if isinstance(exc, ValueError) else "Dados inválidos.", "erro")
-    return render_template("nova_missa.html", servidores=servidores)
+    return render_template("nova_missa.html", servidores=servidores, grupo=grupo)
 
 def missa_ou_404(mid):
     item = get_db().execute("SELECT * FROM missas WHERE id=?", (mid,)).fetchone()
@@ -451,7 +465,7 @@ def novo_aviso():
         else:
             db = get_db()
             db.execute("INSERT INTO avisos(titulo,mensagem,criado_por,grupo) VALUES (?,?,?,?)",
-                       (titulo,mensagem,g.usuario["id"],grupo_atual() or "altar"))
+                       (titulo,mensagem,g.usuario["id"], grupo_atual() or grupo_selecionado(request.form.get("grupo", "altar"))))
             db.commit()
             flash("Aviso publicado.", "ok")
             return redirect(url_for("painel"))

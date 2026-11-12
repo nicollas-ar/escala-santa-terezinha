@@ -4,6 +4,13 @@
 <section class="pagina-intro"><span class="eyebrow">Comunicados</span><h1>Novo aviso</h1><p>O comunicado aparece na página pública assim que for publicado.</p></section>
 <form method="post" class="form-card formulario form-estreito">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if usuario_logado.perfil == "padre" %}
+  <label>Equipe<select name="grupo">
+    {% for codigo, nome in grupos.items() %}
+    <option value="{{ codigo }}"{% if request.form.get('grupo', 'altar') == codigo %} selected{% endif %}>{{ nome }}</option>
+    {% endfor %}
+  </select></label>
+  {% endif %}
   <label>Título<input name="titulo" maxlength="80" required value="{{ request.form.get('titulo','') }}" placeholder="Ex.: Ensaio de sábado"></label>
   <label>Mensagem<textarea name="mensagem" maxlength="600" rows="6" required placeholder="Escreva as informações para a equipe.">{{ request.form.get('mensagem','') }}</textarea></label>
   <div class="grupo-botoes"><button type="submit" class="btn btn-principal">Publicar aviso</button><a href="{{ url_for('painel') }}" class="btn btn-contorno">Cancelar</a></div>

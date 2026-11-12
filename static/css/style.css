@@ -240,3 +240,15 @@ body{background:#f9f6ee}
  #escalas .celebracao h3{font-size:24px}
  #escalas .equipe-lista li{padding:11px 0}
 }
+
+.abas-escala a.aba-escala {
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  text-align: center;
+  text-decoration: none;
+}
+.abas-equipes {
+  grid-template-columns: repeat(auto-fit, minmax(106px, 1fr));
+  margin-top: 8px;
+}

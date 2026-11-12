@@ -4,48 +4,33 @@
 <img src="{{ url_for('static',filename='img/logo.svg') }}" alt="Logo da paróquia">
 <span class="cabecalho-sobre">PARÓQUIA SANTA TEREZINHA DO MENINO JESUS</span><h1 id="titulo-escalas">Escalas de serviço</h1><div class="ornamento" aria-hidden="true"><span></span>✦<span></span></div><p>Com carinho, organizamos nossa missão de servir.</p>
 </section>
-<div class="abas-escala" role="group" aria-label="Escolha a equipe">
-<button class="aba-escala ativa" type="button" data-grupo="altar" aria-pressed="true">Altar</button>
-<button class="aba-escala" type="button" data-grupo="leitor" aria-pressed="false">Leitores</button>
-</div>
-<section id="avisos" class="secao"><div class="titulo-secao"><div><span class="eyebrow">COMUNICADOS</span><h2>Avisos da equipe</h2><p class="subtitulo-secao">Recados importantes para servir com tranquilidade.</p></div></div>
-{% for a in avisos %}<article class="aviso-card aviso-filtravel" data-grupo="{{ a.grupo }}"><div class="aviso-texto"><h3>{{ a.titulo }}</h3><p>{{ a.mensagem }}</p></div></article>{% endfor %}
-<p id="sem-avisos" class="texto-suave" hidden>Nenhum aviso nesta equipe.</p></section>
-<section class="secao" id="escalas">
-  <div class="titulo-secao"><div><span class="eyebrow">CELEBRAÇÕES</span><h2>Próximas escalas</h2><p class="subtitulo-secao">Confira as próximas celebrações e suas equipes.</p></div></div>
-  {% if missas %}<div class="grade-escalas" id="lista-escalas">
-    {% for m in missas %}<div class="escala-filtravel" data-grupo="{{ m.grupo }}">{% include "_missa.html" %}</div>{% endfor %}
-  </div><div id="sem-escalas-filtradas" class="estado-vazio estado-filtro" hidden><h3>Nenhuma escala nesta seleção</h3><p>Selecione outra equipe ou aguarde a publicação das próximas celebrações.</p></div>{% else %}<div class="estado-vazio"><span>✝</span><h3>Aguardando as próximas celebrações</h3><p>As escalas publicadas aparecerão aqui.</p></div>{% endif %}
+<nav class="abas-escala" aria-label="Áreas da escala">
+  <a class="aba-escala {{ 'ativa' if grupo != 'leitor' }}" href="{{ url_for('index') }}"{% if grupo != 'leitor' %} aria-current="true"{% endif %}>Servidores</a>
+  <a class="aba-escala {{ 'ativa' if grupo == 'leitor' }}" href="{{ url_for('index', grupo='leitor') }}"{% if grupo == 'leitor' %} aria-current="page"{% endif %}>{{ grupos["leitor"] }}</a>
+</nav>
+{% if grupo != 'leitor' %}
+<nav class="abas-escala abas-equipes" aria-label="Grupos de servidores">
+  {% for codigo, nome in grupos_servidores.items() %}
+  <a class="aba-escala {{ 'ativa' if grupo == codigo }}" href="{{ url_for('index', grupo=codigo) }}"{% if grupo == codigo %} aria-current="page"{% endif %}>{{ nome }}</a>
+  {% endfor %}
+</nav>
+{% endif %}
+<section id="avisos" class="secao">
+  <div class="titulo-secao"><h2>Avisos da equipe</h2></div>
+  {% for a in avisos %}
+  <article class="aviso-card"><div class="aviso-texto"><h3>{{ a.titulo }}</h3><p>{{ a.mensagem }}</p></div></article>
+  {% else %}
+  <p class="texto-suave">Nenhum aviso nesta equipe.</p>
+  {% endfor %}
 </section>
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const cards = Array.from(document.querySelectorAll('.escala-filtravel'));
-  let grupo = 'altar';
-  const abas = document.querySelectorAll('.aba-escala');
-  abas.forEach(aba => aba.addEventListener('click', () => {
-    grupo = aba.dataset.grupo;
-    abas.forEach(b => { b.classList.toggle('ativa', b === aba); b.setAttribute('aria-pressed', String(b === aba)); });
-    filtrar();
-  }));
-  function filtrar() {
-    let encontradas = 0;
-    cards.forEach(card => {
-      const combina = card.dataset.grupo === grupo;
-      card.hidden = !combina;
-      if (combina) encontradas++;
-    });
-    let avisos = 0;
-    document.querySelectorAll('.aviso-filtravel').forEach(card => {
-      card.hidden = card.dataset.grupo !== grupo;
-      if (!card.hidden) avisos++;
-    });
-    document.getElementById('sem-avisos').hidden = avisos !== 0;
-    const vazio = document.getElementById('sem-escalas-filtradas');
-    if (vazio) vazio.hidden = encontradas > 0;
-  }
-  filtrar();
-});
-</script>
-{% endblock %}
+<section class="secao" id="escalas">
+  <div class="titulo-secao"><h2>Próximas escalas · {{ grupos[grupo] }}</h2></div>
+  {% if missas %}
+  <div class="grade-escalas">
+    {% for m in missas %}{% include "_missa.html" %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="estado-vazio"><h3>Nenhuma escala publicada para esta equipe</h3></div>
+  {% endif %}
+</section>
 {% endblock %}

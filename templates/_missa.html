@@ -1,7 +1,7 @@
 {% set equipe = escalas.get(m.id, []) %}
 <article class="celebracao">
   <div class="celebracao-cabecalho">
-    <div><div class="eyebrow">Celebração</div><h3>{{ m.nome }}</h3></div>
+    <div><div class="eyebrow">{{ grupos[m.grupo] if admin_view else "Celebração" }}</div><h3>{{ m.nome }}</h3></div>
     {% if admin_view is defined and admin_view %}
       <span class="tag {{ 'tag-publicado' if m.publicada else 'tag-rascunho' }}">{{ 'Publicada' if m.publicada else 'Rascunho' }}</span>
     {% endif %}
