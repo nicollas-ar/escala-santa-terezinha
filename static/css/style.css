@@ -188,3 +188,55 @@ body{background:radial-gradient(circle at 50% 0%,#fffdf8 0%,#f8f5ed 70%);color:#
  #escalas .celebracao{padding:18px 16px}
  #escalas .equipe-lista li{padding:11px 0}
 }
+
+/* Identidade acolhedora da Santa Terezinha — versão 3 */
+:root{--azul:#285840;--azul2:#346e51;--azul-suave:#eef3e9;--texto:#35493d;--muted:#69766a;--creme:#f9f6ee;--borda:#e8e0d2;--rosa:#925c68;--sombra:0 8px 28px rgba(52,65,41,.055)}
+body{background:#f9f6ee}
+.topbar{box-shadow:0 2px 14px rgba(50,68,46,.035)}
+.identidade img{background:#f7f5ee;padding:3px}
+.identidade strong{letter-spacing:-.025em}
+.pagina-publica{max-width:880px}
+.cabecalho-paroquia{background:linear-gradient(155deg,#fffefa 5%,#f7f1e5 100%);border:1px solid #ece2cf;border-top:0;border-bottom:2px solid #d4b579;box-shadow:0 9px 30px rgba(91,77,44,.045);border-radius:0 0 28px 28px;padding:25px 20px 26px}
+.cabecalho-paroquia img{width:78px;height:78px;background:#fffdf8;padding:7px;border:1px solid #f1e8d9;border-radius:18px;box-shadow:0 6px 18px rgba(40,68,49,.075)}
+.cabecalho-sobre{color:#987844;letter-spacing:.13em;font-weight:800;margin:12px 0 7px}
+.cabecalho-paroquia h1{font-family:'Playfair Display',Georgia,serif;font-weight:700;letter-spacing:-.035em;font-size:clamp(30px,5vw,40px);color:#285840;margin:0}
+.cabecalho-paroquia p{font-size:14px;line-height:1.55;color:#6d796b;max-width:360px;margin:0 auto}
+.ornamento{display:flex;justify-content:center;align-items:center;gap:11px;color:#c4a26a;font-size:13px;margin:9px auto 8px}
+.ornamento span{width:34px;height:1px;background:#ddc99f}
+.abas-escala{border-radius:18px;padding:6px;background:#eaece2;box-shadow:inset 0 1px 3px rgba(35,70,48,.035)}
+.aba-escala{border-radius:13px;font-weight:800;letter-spacing:.01em}
+.aba-escala:not(.ativa):hover{background:#f8faf4}
+#avisos,#escalas{max-width:750px}
+#avisos .eyebrow,#escalas .eyebrow{color:#9a7455;font-size:10px;letter-spacing:.18em}
+#avisos h2,#escalas h2{font-family:'Playfair Display',Georgia,serif;font-size:clamp(23px,3vw,28px);font-weight:700;color:#285840;letter-spacing:-.02em}
+.subtitulo-secao{color:#7b8075;font-size:13px;margin:7px 0 0;line-height:1.5}
+#avisos .titulo-secao,#escalas .titulo-secao{margin-bottom:14px}
+#avisos .aviso-card{border:1px solid #e9dfcd;border-left:4px solid #d3a95b;border-radius:17px;background:#fffaf0;padding:18px 20px;box-shadow:0 5px 18px rgba(81,73,50,.04)}
+#avisos .aviso-card h3{font-size:16px;color:#315942}
+#avisos .aviso-card p{color:#535f54}
+#avisos #sem-avisos{padding:15px 17px;background:#f2f0e8;border:1px dashed #dfd9ca;border-radius:14px;color:#7a7f73;font-size:13px}
+#escalas .celebracao{background:#fffdf8;border:1px solid #e8e3d8;border-top:4px solid #47785c;border-radius:20px;box-shadow:0 10px 30px rgba(63,73,50,.055);padding:22px 23px}
+#escalas .celebracao h3{font-family:'Playfair Display',Georgia,serif;color:#2b5b42;font-size:clamp(23px,3.8vw,28px);font-weight:700;line-height:1.25}
+#escalas .equipe-lista li{border-bottom:1px solid #f1ede3;padding:12px 0}
+#escalas .numero{background:#eff3e9;color:#477257;border:1px solid #e3eadc;font-size:11px}
+#escalas .equipe-lista strong{color:#304b3a;font-size:15px}
+#escalas .funcao{color:#8b5864;font-size:13px}
+#escalas .data-rodape{color:#477057;border-top:1px solid #e8dcc4;padding-top:15px;font-weight:700}
+#escalas .recado{background:#f7f3e9;border-radius:12px}
+.rodape{background:#f4f0e7;border-top:1px solid #e6ddce;color:#69776b}
+@media(max-width:600px){
+ .cabecalho-paroquia{padding:20px 16px 21px;border-radius:0 0 23px 23px}
+ .cabecalho-paroquia img{width:68px;height:68px}
+ .cabecalho-sobre{font-size:9px;line-height:1.4;margin:9px 0 5px}
+ .cabecalho-paroquia h1{font-size:30px}
+ .cabecalho-paroquia p{font-size:12px}
+ .ornamento{margin:6px auto 7px}
+ .abas-escala{margin:17px auto 7px}
+ #avisos,#escalas{margin-top:23px}
+ #avisos h2,#escalas h2{font-size:24px}
+ .subtitulo-secao{font-size:12px}
+ #avisos .aviso-card{padding:16px}
+ #escalas .celebracao{padding:19px 17px}
+ #escalas .celebracao h3{font-size:24px}
+ #escalas .equipe-lista li{padding:11px 0}
+}
