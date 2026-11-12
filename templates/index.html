@@ -6,7 +6,7 @@
 </section>
 <nav class="abas-escala" aria-label="Áreas da escala">
   <a class="aba-escala {{ 'ativa' if grupo != 'leitor' }}" href="{{ url_for('index') }}"{% if grupo != 'leitor' %} aria-current="true"{% endif %}>Servidores</a>
-  <a class="aba-escala {{ 'ativa' if grupo == 'leitor' }}" href="{{ url_for('index', grupo='leitor') }}"{% if grupo == 'leitor' %} aria-current="page"{% endif %}>Leitores</a>
+  <a class="aba-escala {{ 'ativa' if grupo == 'leitor' }}" href="{{ url_for('index', grupo='leitor') }}"{% if grupo == 'leitor' %} aria-current="page"{% endif %}>{{ grupos["leitor"] }}</a>
 </nav>
 {% if grupo != 'leitor' %}
 <nav class="abas-escala abas-equipes" aria-label="Grupos de servidores">

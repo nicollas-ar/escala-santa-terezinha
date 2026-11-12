@@ -46,7 +46,7 @@ GRUPOS_SERVIDORES = {
     "cerimoniarios": "Cerimoniários",
     "altar": "Altar geral",
 }
-GRUPOS = {**GRUPOS_SERVIDORES, "leitor": "Leitores"}
+GRUPOS = {**GRUPOS_SERVIDORES, "leitor": "Ministros"}
 
 def agora():
     return datetime.now(FUSO)
