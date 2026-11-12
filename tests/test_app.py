@@ -46,6 +46,8 @@ class AplicacaoTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b"Servidor Exemplo", resp.data)
         self.assertNotIn(b"@servidor_", resp.data)
+        self.assertIn('value="coroinhas"', resp.get_data(as_text=True))
+        self.assertNotIn('value="leitor"', resp.get_data(as_text=True))
         with app.app_context():
             c = database.conectar()
             servidor_id = c.execute("SELECT id FROM usuarios WHERE perfil='servidor' AND nome='Servidor Exemplo'").fetchone()["id"]
@@ -69,6 +71,13 @@ class AplicacaoTests(unittest.TestCase):
         self._post("/entrar", {"usuario":"coord_leitor","senha":"senha-leitores-123"})
         self.assertEqual(self.client.get("/missas/1/editar").status_code, 404)
         self.assertNotIn(b"Servidor Exemplo", self.client.get("/usuarios").data)
+        resposta = self._post("/usuarios", {"nome": "Equipe indevida", "grupo": "coroinhas"})
+        self.assertEqual(resposta.status_code, 400)
+        self._post("/sair", {})
+        self.client.get("/entrar")
+        self._post("/entrar", {"usuario": "coord_demo", "senha": "senha-coordenador-123"})
+        resposta = self._post("/usuarios", {"nome": "Servidor Coroinha", "grupo": "coroinhas"})
+        self.assertIn("Servidor Coroinha</strong><small>Coroinhas</small>", resposta.get_data(as_text=True))
 
     def test_separacao_das_equipes_de_servidores(self):
         self.client.get("/entrar")

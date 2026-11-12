@@ -228,14 +228,25 @@ def painel():
     return render_template("painel.html", proximas=proximas, anteriores=anteriores,
                            escalas=escalas_para(lista), avisos=avisos())
 
+def equipes_de_cadastro():
+    grupo = grupo_atual()
+    if grupo is None:
+        return GRUPOS
+    if grupo == "altar":
+        return GRUPOS_SERVIDORES
+    return {grupo: GRUPOS[grupo]}
+
 @app.route("/usuarios", methods=["GET", "POST"])
 @acesso("padre", "coordenador")
 def usuarios():
     db = get_db()
     perfil_novo = "coordenador" if g.usuario["perfil"] == "padre" else "servidor"
+    equipes = equipes_de_cadastro()
+    grupo = request.form.get("grupo", grupo_atual() or "altar")
     if request.method == "POST":
+        if grupo not in equipes:
+            abort(400)
         nome = request.form.get("nome", "").strip()
-        grupo = grupo_atual() or grupo_selecionado(request.form.get("grupo", "altar"))
         if not (2 <= len(nome) <= 100):
             flash("Informe um nome entre 2 e 100 caracteres.", "erro")
         elif perfil_novo == "servidor":
@@ -246,7 +257,7 @@ def usuarios():
                 (nome, identificador, generate_password_hash(secrets.token_urlsafe(48)), "servidor", g.usuario["id"], grupo)
             )
             db.commit()
-            flash("Servidor cadastrado apenas com o nome.", "ok")
+            flash(f"Servidor cadastrado em {GRUPOS[grupo]}.", "ok")
             return redirect(url_for("usuarios"))
         else:
             login = request.form.get("usuario", "").strip().lower()
@@ -265,8 +276,13 @@ def usuarios():
                 db.commit()
                 flash("Coordenador cadastrado.", "ok")
                 return redirect(url_for("usuarios"))
-    pessoas = db.execute("SELECT id,nome,usuario,ativo,grupo FROM usuarios WHERE perfil=?" + (" AND grupo=?" if grupo_atual() else "") + " ORDER BY nome", (perfil_novo, grupo_atual()) if grupo_atual() else (perfil_novo,)).fetchall()
-    return render_template("usuarios.html", pessoas=pessoas, perfil_novo=perfil_novo)
+    marcas = ",".join("?" for _ in equipes)
+    pessoas = db.execute(
+        f"SELECT id,nome,usuario,ativo,grupo FROM usuarios WHERE perfil=? AND grupo IN ({marcas}) ORDER BY nome",
+        (perfil_novo, *equipes),
+    ).fetchall()
+    return render_template("usuarios.html", pessoas=pessoas, perfil_novo=perfil_novo,
+                           equipes=equipes, grupo=grupo)
 
 @app.post("/usuarios/<int:uid>/alternar")
 @acesso("padre", "coordenador")
@@ -274,7 +290,8 @@ def alternar_usuario(uid):
     permitido = "coordenador" if g.usuario["perfil"] == "padre" else "servidor"
     db = get_db()
     pessoa = db.execute("SELECT * FROM usuarios WHERE id=? AND perfil=?", (uid, permitido)).fetchone()
-    conferir_grupo(pessoa)
+    if not pessoa or pessoa["grupo"] not in equipes_de_cadastro():
+        abort(404)
     db.execute("UPDATE usuarios SET ativo=? WHERE id=?", (0 if pessoa["ativo"] else 1, uid))
     db.commit()
     flash("Situação atualizada.", "ok")
