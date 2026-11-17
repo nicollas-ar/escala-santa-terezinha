@@ -61,19 +61,6 @@ CREATE TABLE IF NOT EXISTS escala (
  ordem INTEGER NOT NULL DEFAULT 0,
  UNIQUE(missa_id, servidor_id)
 );
-CREATE TABLE IF NOT EXISTS historico_sorteios (
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- missa_id INTEGER,
- grupo TEXT NOT NULL,
- nome_missa TEXT NOT NULL,
- data_missa TEXT NOT NULL,
- hora_missa TEXT NOT NULL,
- sorteado_em TEXT NOT NULL,
- coordenador_id INTEGER,
- coordenador_nome TEXT NOT NULL,
- resultado TEXT NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_historico_grupo ON historico_sorteios(grupo,id);
 CREATE INDEX IF NOT EXISTS idx_missas_data ON missas(data,hora);
 CREATE INDEX IF NOT EXISTS idx_escala_missa ON escala(missa_id);
 CREATE INDEX IF NOT EXISTS idx_escala_servidor ON escala(servidor_id);
